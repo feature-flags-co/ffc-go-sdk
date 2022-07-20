@@ -21,10 +21,10 @@ func newFlagState(success bool, message string, date *EvalDetail) *FlagState {
 	}
 }
 
-// Of build a good flag stat
+// OfFlagState build a good flag stat
 // @param data  a flag value with reason
 // @Return a FlagState
-func Of(data *EvalDetail) *FlagState {
+func OfFlagState(data *EvalDetail) *FlagState {
 	var reason string
 	if data.IsSuccess() {
 		reason = "OK"
