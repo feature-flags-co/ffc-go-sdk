@@ -38,15 +38,15 @@ type TimestampUserTag struct {
 	Timestamp  int64
 }
 type FeatureFlag struct {
-	Id                  string
-	IsArchived          bool
-	Timestamp           int64
-	ExptIncludeAllRules bool
-	Info                FeatureFlagBasicInfo
-	Prerequisites       []FeatureFlagPrerequisite
-	Rules               []TargetRule
-	Targets             []TargetIndividuals
-	Variations          []VariationOption
+	Id                  string                    `json:"id"`
+	IsArchived          bool                      `json:"isArchived"`
+	Timestamp           int64                     `json:"timestamp"`
+	ExptIncludeAllRules bool                      `json:"exptIncludeAllRules"`
+	Info                FeatureFlagBasicInfo      `json:"ff"`
+	Prerequisites       []FeatureFlagPrerequisite `json:"ffp"`
+	Rules               []TargetRule              `json:"fftuwmtr"`
+	Targets             []TargetIndividuals       `json:"targetIndividuals"`
+	Variations          []VariationOption         `json:"variationOptions"`
 }
 
 type Data struct {
