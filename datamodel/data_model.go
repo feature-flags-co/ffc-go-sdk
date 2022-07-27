@@ -1,4 +1,12 @@
-package main
+package datamodel
+
+import "github.com/feature-flags-co/ffc-go-sdk/common"
+
+const (
+	StreamingMsgTypeDataSync = "data-sync"
+	StreamingMsgTypePing     = "ping"
+	StreamingMsgTypeDataPong = "pong"
+)
 
 type StreamingMessage struct {
 	MessageType string `json:"messageType"`
@@ -6,7 +14,7 @@ type StreamingMessage struct {
 
 type All struct {
 	StreamingMessage
-	Data Data
+	Data
 }
 type FeatureFlagBasicInfo struct {
 }
@@ -33,6 +41,7 @@ type Segment struct {
 }
 
 type TimestampUserTag struct {
+	common.UserTag
 	Id         string
 	IsArchived bool
 	Timestamp  int64
@@ -52,7 +61,7 @@ type FeatureFlag struct {
 type Data struct {
 	EventType    string
 	FeatureFlags []FeatureFlag
-	segments     []Segment
+	Segments     []Segment
 	UserTags     []TimestampUserTag
 	Timestamp    int64
 }
