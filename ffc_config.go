@@ -33,7 +33,7 @@ func DefaultFFCConfig() *FFCConfig {
 		return ffcConfig
 	} else {
 		ffb := FFCConfigBuilder{}
-		return ffb.Build()
+		return ffb.build()
 	}
 }
 
@@ -41,7 +41,7 @@ type FFCConfigBuilder struct {
 	StartWaitTime time.Duration
 }
 
-func (c *FFCConfigBuilder) Build() *FFCConfig {
+func (c *FFCConfigBuilder) build() *FFCConfig {
 	ffcConfig := FFCConfig{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
@@ -49,4 +49,12 @@ func (c *FFCConfigBuilder) Build() *FFCConfig {
 		},
 	}
 	return &ffcConfig
+}
+
+func (c *FFCConfigBuilder) updateProcessorFactory() *FFCConfigBuilder {
+	return c
+}
+
+func (c *FFCConfigBuilder) insightProcessorFactory() *FFCConfigBuilder {
+	return c
 }
