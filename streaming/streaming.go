@@ -3,6 +3,7 @@ package streaming
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/feature-flags-co/ffc-go-sdk"
 	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
@@ -21,52 +22,41 @@ const (
 	DefaultStreamingPath = "/streaming"
 )
 
-func processDateAsync(data datamodel.All) {
-
-	eventType := data.EventType
-	//version := data.Timestamp
-	if StreamingFullOps == eventType {
-
-	}
-
+type Streaming struct {
+	BasicConfig  ffc.BasicConfig
+	HttpConfig   ffc.HttpConfig
+	StreamingURL string
+	Websocket    websocket.Conn
 }
 
-// ProcessMessage receive message from web socket and convert to all object.
-// @Param message the data receive from socket
-func ProcessMessage(message string) {
-	var msgModel datamodel.StreamingMessage
-	err := json.Unmarshal([]byte(message), &msgModel)
-	if err != nil {
-		log.Fatalf("process message to StreamingMessage object error, error = %v", err)
-		return
-	}
-
-	// process data sync message
-	if datamodel.StreamingMsgTypeDataSync == msgModel.MessageType {
-		var all datamodel.All
-		err = json.Unmarshal([]byte(message), &all)
-		if err != nil {
-			log.Fatalf("process message to All object error, error = %v", err)
-			return
-		}
-		go processDateAsync(all)
+func NewStreaming(basicConfig ffc.BasicConfig, httpConfig ffc.HttpConfig, streamingURI string) *Streaming {
+	return &Streaming{
+		BasicConfig:  basicConfig,
+		HttpConfig:   httpConfig,
+		StreamingURL: strings.TrimRight(streamingURI, "/") + DefaultStreamingPath,
 	}
 }
 
-func connect() {
+func (s *Streaming) connect() {
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	envSecret := ""
+	// get env secret from basic config
+	envSecret := s.BasicConfig.EnvSecret
 	token := utils.BuildToken(envSecret)
-	streamingURI := ""
-	streamingURL := strings.TrimRight(streamingURI, "/") + DefaultStreamingPath
-	path := fmt.Sprintf(streamingURL+AuthParams, token)
+
+	// build wss request url
+	path := fmt.Sprintf(s.StreamingURL+AuthParams, token)
 	u := url.URL{Scheme: "ws", Host: "", Path: path}
 	log.Printf("connecting to %s", u.String())
 
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	// build request headers
+	headers := utils.HeaderBuilderFor(s.HttpConfig)
+
+	// setup web socket connection
+	c, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
+
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
@@ -114,5 +104,35 @@ func connect() {
 			}
 			return
 		}
+	}
+}
+
+func processDateAsync(data datamodel.All) {
+	eventType := data.EventType
+	//version := data.Timestamp
+	if StreamingFullOps == eventType {
+	}
+
+}
+
+// ProcessMessage receive message from web socket and convert to all object.
+// @Param message the data receive from socket
+func ProcessMessage(message string) {
+	var msgModel datamodel.StreamingMessage
+	err := json.Unmarshal([]byte(message), &msgModel)
+	if err != nil {
+		log.Fatalf("process message to StreamingMessage object error, error = %v", err)
+		return
+	}
+
+	// process data sync message
+	if datamodel.StreamingMsgTypeDataSync == msgModel.MessageType {
+		var all datamodel.All
+		err = json.Unmarshal([]byte(message), &all)
+		if err != nil {
+			log.Fatalf("process message to All object error, error = %v", err)
+			return
+		}
+		go processDateAsync(all)
 	}
 }

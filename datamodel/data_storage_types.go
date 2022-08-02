@@ -29,7 +29,6 @@ func NewCategory(name string, pollingApiUrl string, streamingApiUrl string) Cate
 }
 
 func OfCategory(name string) Category {
-
 	return Category{
 		Name:            name,
 		PollingApiUrl:   "unknown",

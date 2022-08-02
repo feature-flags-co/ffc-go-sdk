@@ -15,6 +15,7 @@ var ffcConfig *FFCConfig
 type HttpConfig struct {
 	ConnectTime time.Duration
 	SocketTime  time.Duration
+	Headers     map[string]string
 }
 
 type FFCConfig struct {
