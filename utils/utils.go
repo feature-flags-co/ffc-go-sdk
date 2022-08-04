@@ -2,10 +2,8 @@ package utils
 
 import (
 	"fmt"
-	"github.com/feature-flags-co/ffc-go-sdk"
 	"math"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -83,11 +81,3 @@ func DefaultHeaders(envSecret string) map[string]string {
 // HeaderBuilderFor convert http config header to request headers
 // @Param httpConfig
 // @Return http headers
-func HeaderBuilderFor(httpConfig ffc.HttpConfig) http.Header {
-
-	header := http.Header{}
-	for k, v := range httpConfig.Headers {
-		header.Add(k, v)
-	}
-	return header
-}

@@ -1,7 +1,7 @@
 package ffc
 
 import (
-	"github.com/feature-flags-co/ffc-go-sdk/streaming"
+	"net/http"
 	"time"
 )
 
@@ -26,7 +26,7 @@ type FFCConfig struct {
 	StartWaitTime    time.Duration
 	OffLine          bool
 	HttpConfig       HttpConfig
-	StreamingBuilder *streaming.StreamingBuilder
+	StreamingBuilder *StreamingBuilder
 }
 
 type BasicConfig struct {
@@ -39,7 +39,7 @@ func DefaultFFCConfig() *FFCConfig {
 		return ffcConfig
 	} else {
 		ffb := FFCConfigBuilder{}
-		return ffb.build()
+		return ffb.Build()
 	}
 }
 
@@ -55,11 +55,11 @@ func DefaultFFCConfigBuilder() *FFCConfigBuilder {
 // FFCConfigBuilder build data for ffcconfig object
 type FFCConfigBuilder struct {
 	StartWaitTime    time.Duration
-	StreamingBuilder *streaming.StreamingBuilder
+	StreamingBuilder *StreamingBuilder
 	Offline          bool
 }
 
-func (c *FFCConfigBuilder) build() *FFCConfig {
+func (c *FFCConfigBuilder) Build() *FFCConfig {
 	ffcConfig := FFCConfig{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
@@ -70,7 +70,7 @@ func (c *FFCConfigBuilder) build() *FFCConfig {
 	return &ffcConfig
 }
 
-func (c *FFCConfigBuilder) updateProcessorFactory(streamingBuilder *streaming.StreamingBuilder) *FFCConfigBuilder {
+func (c *FFCConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *FFCConfigBuilder {
 	c.StreamingBuilder = streamingBuilder
 	return c
 }
@@ -79,7 +79,16 @@ func (c *FFCConfigBuilder) insightProcessorFactory() *FFCConfigBuilder {
 	return c
 }
 
-func (c *FFCConfigBuilder) offline(offline bool) *FFCConfigBuilder {
+func (c *FFCConfigBuilder) SetOffline(offline bool) *FFCConfigBuilder {
 	c.Offline = offline
 	return c
+}
+
+func HeaderBuilderFor(httpConfig HttpConfig) http.Header {
+
+	header := http.Header{}
+	for k, v := range httpConfig.Headers {
+		header.Add(k, v)
+	}
+	return header
 }

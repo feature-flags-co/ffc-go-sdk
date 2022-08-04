@@ -1,9 +1,8 @@
-package streaming
+package ffc
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/feature-flags-co/ffc-go-sdk"
 	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
@@ -23,13 +22,13 @@ const (
 )
 
 type Streaming struct {
-	BasicConfig  ffc.BasicConfig
-	HttpConfig   ffc.HttpConfig
+	BasicConfig  BasicConfig
+	HttpConfig   HttpConfig
 	StreamingURL string
 	Websocket    websocket.Conn
 }
 
-func NewStreaming(config ffc.Context, streamingURI string) *Streaming {
+func NewStreaming(config Context, streamingURI string) *Streaming {
 	return &Streaming{
 		BasicConfig:  config.BasicConfig,
 		HttpConfig:   config.HttpConfig,
@@ -52,7 +51,7 @@ func (s *Streaming) Connect() {
 	log.Printf("connecting to %s", u.String())
 
 	// build request headers
-	headers := utils.HeaderBuilderFor(s.HttpConfig)
+	headers := HeaderBuilderFor(s.HttpConfig)
 
 	// setup web socket connection
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), headers)

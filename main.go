@@ -1,9 +1,9 @@
-package ffc
+package main
 
 import (
 	"flag"
 	"fmt"
-	"github.com/feature-flags-co/ffc-go-sdk/streaming"
+	"github.com/feature-flags-co/ffc-go-sdk/ffc"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"log"
 	"net/http"
@@ -26,18 +26,19 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 
 func websocket() {
 	envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
-	streamingBuilder := streaming.NewStreamingBuilder().
-		NewStreamingURI("wss://api-dev.featureflag.co")
+	streamingBuilder := ffc.NewStreamingBuilder().NewStreamingURI("wss://api-dev.featureflag.co")
 
-	config := DefaultFFCConfigBuilder().
-		offline(false).
-		updateProcessorFactory(streamingBuilder).build()
-	client := NewFFCClient(envSecret, config)
+	config := ffc.DefaultFFCConfigBuilder().
+		SetOffline(false).
+		UpdateProcessorFactory(streamingBuilder).
+		Build()
+	client := ffc.NewFFCClient(envSecret, config)
 
-	tags := client.getAllUserTags()
+	tags := client.GetAllUserTags()
 	fmt.Println(tags)
 
 }
 func main() {
+	websocket()
 	fmt.Print(utils.BuildToken("ad2sdfad="))
 }
