@@ -3,6 +3,7 @@ package ffc
 import (
 	"flag"
 	"fmt"
+	"github.com/feature-flags-co/ffc-go-sdk/streaming"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"log"
 	"net/http"
@@ -23,6 +24,19 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "home.html")
 }
 
+func websocket() {
+	envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
+	streamingBuilder := streaming.NewStreamingBuilder().
+		NewStreamingURI("wss://api-dev.featureflag.co")
+
+	config := DefaultFFCConfigBuilder().
+		offline(false).
+		updateProcessorFactory(streamingBuilder).build()
+	client := NewFFCClient(envSecret, config)
+
+	client.getAllUserTags()
+
+}
 func main() {
 	fmt.Print(utils.BuildToken("ad2sdfad="))
 }

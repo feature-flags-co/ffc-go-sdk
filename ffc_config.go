@@ -1,6 +1,9 @@
 package ffc
 
-import "time"
+import (
+	"github.com/feature-flags-co/ffc-go-sdk/streaming"
+	"time"
+)
 
 const (
 	ConfigDefaultBaseUri        = "https://api.featureflag.co"
@@ -11,6 +14,7 @@ const (
 )
 
 var ffcConfig *FFCConfig
+var ffcConfigBuilder *FFCConfigBuilder
 
 type HttpConfig struct {
 	ConnectTime time.Duration
@@ -19,9 +23,10 @@ type HttpConfig struct {
 }
 
 type FFCConfig struct {
-	StartWaitTime time.Duration
-	OffLine       bool
-	HttpConfig    HttpConfig
+	StartWaitTime    time.Duration
+	OffLine          bool
+	HttpConfig       HttpConfig
+	StreamingBuilder *streaming.StreamingBuilder
 }
 
 type BasicConfig struct {
@@ -38,8 +43,20 @@ func DefaultFFCConfig() *FFCConfig {
 	}
 }
 
+func DefaultFFCConfigBuilder() *FFCConfigBuilder {
+	if ffcConfigBuilder != nil {
+		return ffcConfigBuilder
+	} else {
+		ffb := FFCConfigBuilder{}
+		return &ffb
+	}
+}
+
+// FFCConfigBuilder build data for ffcconfig object
 type FFCConfigBuilder struct {
-	StartWaitTime time.Duration
+	StartWaitTime    time.Duration
+	StreamingBuilder *streaming.StreamingBuilder
+	Offline          bool
 }
 
 func (c *FFCConfigBuilder) build() *FFCConfig {
@@ -48,14 +65,21 @@ func (c *FFCConfigBuilder) build() *FFCConfig {
 			ConnectTime: HttpConfigDefaultConnTime,
 			SocketTime:  HttpConfigDefaultSocketTime,
 		},
+		StreamingBuilder: c.StreamingBuilder,
 	}
 	return &ffcConfig
 }
 
-func (c *FFCConfigBuilder) updateProcessorFactory() *FFCConfigBuilder {
+func (c *FFCConfigBuilder) updateProcessorFactory(streamingBuilder *streaming.StreamingBuilder) *FFCConfigBuilder {
+	c.StreamingBuilder = streamingBuilder
 	return c
 }
 
 func (c *FFCConfigBuilder) insightProcessorFactory() *FFCConfigBuilder {
+	return c
+}
+
+func (c *FFCConfigBuilder) offline(offline bool) *FFCConfigBuilder {
+	c.Offline = offline
 	return c
 }

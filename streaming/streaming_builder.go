@@ -14,17 +14,17 @@ func NewStreamingBuilder() *StreamingBuilder {
 	return &builder
 }
 
-func (s *StreamingBuilder) newStreamingURI(uri string) *StreamingBuilder {
+func (s *StreamingBuilder) NewStreamingURI(uri string) *StreamingBuilder {
 	s.StreamingURI = uri
 	return s
 }
 
-func (s *StreamingBuilder) firstRetryDelay(duration time.Duration) *StreamingBuilder {
-	s.firstRetryDelay(duration)
+func (s *StreamingBuilder) SetFirstRetryDelay(duration time.Duration) *StreamingBuilder {
+	s.FirstRetryDelay = duration
 	return s
 }
 
-func (s *StreamingBuilder) maxRetryTimes(maxRetryTimes int64) *StreamingBuilder {
+func (s *StreamingBuilder) SetMaxRetryTimes(maxRetryTimes int64) *StreamingBuilder {
 	s.MaxRetryTimes = maxRetryTimes
 	return s
 }

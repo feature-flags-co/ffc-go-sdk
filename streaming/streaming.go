@@ -29,15 +29,15 @@ type Streaming struct {
 	Websocket    websocket.Conn
 }
 
-func NewStreaming(basicConfig ffc.BasicConfig, httpConfig ffc.HttpConfig, streamingURI string) *Streaming {
+func NewStreaming(config ffc.Context, streamingURI string) *Streaming {
 	return &Streaming{
-		BasicConfig:  basicConfig,
-		HttpConfig:   httpConfig,
+		BasicConfig:  config.BasicConfig,
+		HttpConfig:   config.HttpConfig,
 		StreamingURL: strings.TrimRight(streamingURI, "/") + DefaultStreamingPath,
 	}
 }
 
-func (s *Streaming) connect() {
+func (s *Streaming) Connect() {
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
