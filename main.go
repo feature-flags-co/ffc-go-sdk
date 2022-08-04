@@ -34,7 +34,8 @@ func websocket() {
 		updateProcessorFactory(streamingBuilder).build()
 	client := NewFFCClient(envSecret, config)
 
-	client.getAllUserTags()
+	tags := client.getAllUserTags()
+	fmt.Println(tags)
 
 }
 func main() {
