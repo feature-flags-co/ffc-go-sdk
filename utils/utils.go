@@ -25,6 +25,7 @@ var alphabetsMap map[string]string = map[string]string{
 func BuildToken(envSecret string) string {
 	text := strings.TrimRight(envSecret, "=")
 	now := time.Now().UnixNano() / 1e6
+
 	timestampCode := encodeNumber(now, len(strconv.FormatInt(int64(now), 10)))
 	start := math.Max(math.Floor(rand.Float64()*float64(len(text))), 2)
 

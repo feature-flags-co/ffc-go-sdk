@@ -7,7 +7,6 @@ import (
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
 	"log"
-	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -47,18 +46,19 @@ func (s *Streaming) Connect() {
 
 	// build wss request url
 	path := fmt.Sprintf(s.StreamingURL+AuthParams, token)
-	u := url.URL{Scheme: "ws", Host: "", Path: path}
-	log.Printf("connecting to %s", u.String())
+	log.Printf("connecting: %s", path)
 
 	// build request headers
 	headers := HeaderBuilderFor(s.HttpConfig)
 
 	// setup web socket connection
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), headers)
+	c, rsp, err := websocket.DefaultDialer.Dial(path, headers)
 
 	if err != nil {
-		log.Fatal("dial:", err)
+		log.Fatal("dial error:", err)
+		log.Fatal("dial error:", rsp)
 	}
+	log.Printf("connected: %s,%s", path, rsp)
 	defer c.Close()
 	done := make(chan struct{})
 
@@ -104,6 +104,7 @@ func (s *Streaming) Connect() {
 			return
 		}
 	}
+
 }
 
 func processDateAsync(data datamodel.All) {

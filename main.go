@@ -39,6 +39,13 @@ func websocket() {
 
 }
 func main() {
+	//now := time.Now().UnixNano() / 1e6
+	//n2 := time.Now().UnixNano() / int64(time.Millisecond)
+	////time.Now().Format("2006-01-02 15:04:05")
+	//timestamp := time.Now().Unix()
+	//fmt.Println(now)
+	//fmt.Println(n2)
+	//fmt.Println(timestamp)
 	websocket()
 	fmt.Print(utils.BuildToken("ad2sdfad="))
 }

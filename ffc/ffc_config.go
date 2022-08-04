@@ -85,7 +85,6 @@ func (c *FFCConfigBuilder) SetOffline(offline bool) *FFCConfigBuilder {
 }
 
 func HeaderBuilderFor(httpConfig HttpConfig) http.Header {
-
 	header := http.Header{}
 	for k, v := range httpConfig.Headers {
 		header.Add(k, v)
