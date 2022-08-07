@@ -12,6 +12,14 @@ type StreamingMessage struct {
 	MessageType string `json:"messageType"`
 }
 
+type DataSyncMessage struct {
+	StreamingMessage
+	Data InternalData `json:"data"`
+}
+type InternalData struct {
+	Timestamp int64  `json:"timestamp"`
+}
+
 type All struct {
 	StreamingMessage
 	Data

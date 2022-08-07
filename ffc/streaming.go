@@ -3,6 +3,7 @@ package ffc
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/feature-flags-co/ffc-go-sdk/common"
 	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
@@ -14,25 +15,43 @@ import (
 )
 
 const (
-	StreamingFullOps     = "full"
-	StreamingPatchOps    = "patch"
-	AuthParams           = "?token=%s&type=server&version=2"
-	DefaultStreamingPath = "/streaming"
+
 )
 
 type Streaming struct {
 	BasicConfig  BasicConfig
 	HttpConfig   HttpConfig
 	StreamingURL string
-	Websocket    websocket.Conn
 }
+
+var sockectConn *websocket.Conn
 
 func NewStreaming(config Context, streamingURI string) *Streaming {
 	return &Streaming{
 		BasicConfig:  config.BasicConfig,
 		HttpConfig:   config.HttpConfig,
-		StreamingURL: strings.TrimRight(streamingURI, "/") + DefaultStreamingPath,
+		StreamingURL: strings.TrimRight(streamingURI, "/") + common.DefaultStreamingPath,
 	}
+}
+
+// Ping websocket ping
+func Ping(time time.Time) {
+	syncMessage := datamodel.DataSyncMessage{
+		Data: datamodel.InternalData{},
+		StreamingMessage: datamodel.StreamingMessage{
+			MessageType: datamodel.StreamingMsgTypePing,
+		},
+	}
+	msg, _ := json.Marshal(syncMessage)
+	log.Printf("ping message:%v", string(msg))
+	if sockectConn != nil {
+		err := sockectConn.WriteMessage(websocket.TextMessage, msg)
+		if err != nil {
+			log.Println("Ping write error :", err)
+			return
+		}
+	}
+
 }
 
 func (s *Streaming) Connect() {
@@ -45,7 +64,7 @@ func (s *Streaming) Connect() {
 	token := utils.BuildToken(envSecret)
 
 	// build wss request url
-	path := fmt.Sprintf(s.StreamingURL+AuthParams, token)
+	path := fmt.Sprintf(s.StreamingURL+common.AuthParams, token)
 	log.Printf("connecting: %s", path)
 
 	// build request headers
@@ -53,12 +72,12 @@ func (s *Streaming) Connect() {
 
 	// setup web socket connection
 	c, rsp, err := websocket.DefaultDialer.Dial(path, headers)
+	sockectConn = c
 
 	if err != nil {
-		log.Fatal("dial error:", err)
-		log.Fatal("dial error:", rsp)
+		log.Fatal("dial error=", err, " rsp=", rsp)
 	}
-	log.Printf("connected: %s,%s", path, rsp)
+	log.Printf("connected: %s,%v", path, rsp)
 	defer c.Close()
 	done := make(chan struct{})
 
@@ -71,10 +90,11 @@ func (s *Streaming) Connect() {
 				return
 			}
 			log.Printf("recv: %s", message)
+			ProcessMessage(string(message))
 		}
 	}()
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(common.PingInterval)
 	defer ticker.Stop()
 
 	for {
@@ -82,11 +102,9 @@ func (s *Streaming) Connect() {
 		case <-done:
 			return
 		case t := <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
-			if err != nil {
-				log.Println("write:", err)
-				return
-			}
+
+			// send ping message to websocket server
+			Ping(t)
 		case <-interrupt:
 			log.Println("interrupt")
 
@@ -110,7 +128,7 @@ func (s *Streaming) Connect() {
 func processDateAsync(data datamodel.All) {
 	eventType := data.EventType
 	//version := data.Timestamp
-	if StreamingFullOps == eventType {
+	if common.StreamingFullOps == eventType {
 	}
 
 }

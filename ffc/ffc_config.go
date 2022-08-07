@@ -1,6 +1,7 @@
 package ffc
 
 import (
+	"log"
 	"net/http"
 	"time"
 )
@@ -12,6 +13,11 @@ const (
 	HttpConfigDefaultConnTime   = time.Duration(time.Second * 10)
 	HttpConfigDefaultSocketTime = time.Duration(time.Second * 15)
 )
+
+
+func init()  {
+	log.SetFlags(log.Lshortfile | log.Lmicroseconds | log.Ldate)
+}
 
 var ffcConfig *FFCConfig
 var ffcConfigBuilder *FFCConfigBuilder
