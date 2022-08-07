@@ -20,26 +20,6 @@ type InternalData struct {
 	Timestamp int64 `json:"timestamp"`
 }
 
-func NewDataSyncMessage(timestamp int64, msgType string) DataSyncMessage {
-
-	var data InternalData
-	if timestamp == 0 {
-		data = InternalData{}
-	} else {
-		data = InternalData{
-			Timestamp: timestamp,
-		}
-	}
-	syncMessage := DataSyncMessage{
-		Data: data,
-		StreamingMessage: StreamingMessage{
-			MessageType: msgType,
-		},
-	}
-	return syncMessage
-
-}
-
 type All struct {
 	MessageType string `json:"messageType"`
 	Data        `json:"data"`
@@ -130,4 +110,24 @@ type Data struct {
 	FeatureFlags []FeatureFlag      `json:"featureFlags"`
 	Segments     []Segment          `json:"segments"`
 	UserTags     []TimestampUserTag `json:"userTags"`
+}
+
+func NewDataSyncMessage(timestamp int64, msgType string) DataSyncMessage {
+
+	var data InternalData
+	if timestamp == 0 {
+		data = InternalData{}
+	} else {
+		data = InternalData{
+			Timestamp: timestamp,
+		}
+	}
+	syncMessage := DataSyncMessage{
+		Data: data,
+		StreamingMessage: StreamingMessage{
+			MessageType: msgType,
+		},
+	}
+	return syncMessage
+
 }
