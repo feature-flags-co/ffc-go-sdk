@@ -1,9 +1,9 @@
 package common
 
 type UserTag struct {
-	RequestProperty string
-	Source          string
-	UserProperty    string
+	RequestProperty string `json:"requestProperty"`
+	Source          string `json:"source"`
+	UserProperty    string `json:"userProperty"`
 }
 
 var (

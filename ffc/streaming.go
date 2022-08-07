@@ -14,9 +14,7 @@ import (
 	"time"
 )
 
-const (
-
-)
+const ()
 
 type Streaming struct {
 	BasicConfig  BasicConfig
@@ -34,14 +32,16 @@ func NewStreaming(config Context, streamingURI string) *Streaming {
 	}
 }
 
-// Ping websocket ping
-func Ping(time time.Time) {
-	syncMessage := datamodel.DataSyncMessage{
-		Data: datamodel.InternalData{},
-		StreamingMessage: datamodel.StreamingMessage{
-			MessageType: datamodel.StreamingMsgTypePing,
-		},
+// PingOrDataSync websocket ping
+func PingOrDataSync(stime *time.Time, msgType string) {
+
+	var timestamp int64
+	if stime == nil {
+		timestamp = 0
+	} else {
+		timestamp = stime.UnixNano() / 1e6
 	}
+	syncMessage := datamodel.NewDataSyncMessage(timestamp, msgType)
 	msg, _ := json.Marshal(syncMessage)
 	log.Printf("ping message:%v", string(msg))
 	if sockectConn != nil {
@@ -51,7 +51,6 @@ func Ping(time time.Time) {
 			return
 		}
 	}
-
 }
 
 func (s *Streaming) Connect() {
@@ -73,6 +72,9 @@ func (s *Streaming) Connect() {
 	// setup web socket connection
 	c, rsp, err := websocket.DefaultDialer.Dial(path, headers)
 	sockectConn = c
+
+	// send data sync message
+	PingOrDataSync(nil, datamodel.MsgTypeDataSync)
 
 	if err != nil {
 		log.Fatal("dial error=", err, " rsp=", rsp)
@@ -104,7 +106,9 @@ func (s *Streaming) Connect() {
 		case t := <-ticker.C:
 
 			// send ping message to websocket server
-			Ping(t)
+			log.Printf("send ping msg %v", t)
+			PingOrDataSync(&t, datamodel.MsgTypePing)
+			PingOrDataSync(&t, datamodel.MsgTypeDataSync)
 		case <-interrupt:
 			log.Println("interrupt")
 
@@ -144,7 +148,7 @@ func ProcessMessage(message string) {
 	}
 
 	// process data sync message
-	if datamodel.StreamingMsgTypeDataSync == msgModel.MessageType {
+	if datamodel.MsgTypeDataSync == msgModel.MessageType {
 		var all datamodel.All
 		err = json.Unmarshal([]byte(message), &all)
 		if err != nil {
