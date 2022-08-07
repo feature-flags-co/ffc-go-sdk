@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-const ()
-
 type Streaming struct {
 	BasicConfig  BasicConfig
 	HttpConfig   HttpConfig
@@ -74,7 +72,7 @@ func (s *Streaming) Connect() {
 	sockectConn = c
 
 	// send data sync message
-	PingOrDataSync(nil, datamodel.MsgTypeDataSync)
+	PingOrDataSync(nil, common.MsgTypeDataSync)
 
 	if err != nil {
 		log.Fatal("dial error=", err, " rsp=", rsp)
@@ -107,8 +105,8 @@ func (s *Streaming) Connect() {
 
 			// send ping message to websocket server
 			log.Printf("send ping msg %v", t)
-			PingOrDataSync(&t, datamodel.MsgTypePing)
-			PingOrDataSync(&t, datamodel.MsgTypeDataSync)
+			PingOrDataSync(&t, common.MsgTypePing)
+			PingOrDataSync(&t, common.MsgTypeDataSync)
 		case <-interrupt:
 			log.Println("interrupt")
 
@@ -129,12 +127,17 @@ func (s *Streaming) Connect() {
 
 }
 
-func processDateAsync(data datamodel.All) {
+func processDateAsync(data datamodel.All) bool {
 	eventType := data.EventType
 	//version := data.Timestamp
-	if common.StreamingFullOps == eventType {
-	}
+	if common.EventTypeFullOps == eventType {
 
+		// TODO
+	} else if common.EventTypePatchOps == eventType {
+
+		// TODO
+	}
+	return true
 }
 
 // ProcessMessage receive message from web socket and convert to all object.
@@ -148,7 +151,7 @@ func ProcessMessage(message string) {
 	}
 
 	// process data sync message
-	if datamodel.MsgTypeDataSync == msgModel.MessageType {
+	if common.MsgTypeDataSync == msgModel.MessageType {
 		var all datamodel.All
 		err = json.Unmarshal([]byte(message), &all)
 		if err != nil {

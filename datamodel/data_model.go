@@ -2,12 +2,6 @@ package datamodel
 
 import "github.com/feature-flags-co/ffc-go-sdk/common"
 
-const (
-	MsgTypeDataSync = "data-sync"
-	MsgTypePing     = "ping"
-	MsgTypeDataPong = "pong"
-)
-
 type StreamingMessage struct {
 	MessageType string `json:"messageType"`
 }
