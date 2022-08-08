@@ -104,7 +104,17 @@ type Data struct {
 	FeatureFlags []FeatureFlag      `json:"featureFlags"`
 	Segments     []Segment          `json:"segments"`
 	UserTags     []TimestampUserTag `json:"userTags"`
+	Timestamp    int64              `json:"timestamp"`
 }
+
+
+type TimestampData interface {
+	GetId() string
+	IsArchived() bool
+	GetTimestamp() int64
+	GetType() int
+}
+
 
 func NewDataSyncMessage(timestamp int64, msgType string) DataSyncMessage {
 
