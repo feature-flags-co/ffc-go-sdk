@@ -37,6 +37,7 @@ func websocket() {
 	tags := client.GetAllUserTags()
 	fmt.Println(tags)
 
+
 }
 func main() {
 	websocket()
