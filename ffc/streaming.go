@@ -128,14 +128,23 @@ func (s *Streaming) Connect() {
 }
 
 func processDateAsync(data datamodel.All) bool {
-	eventType := data.EventType
-	//version := data.Timestamp
-	if common.EventTypeFullOps == eventType {
 
-		// TODO
+	eventType := data.EventType
+	version := data.Timestamp
+
+	dataMap := data.ToStorageType()
+
+	// init all data to data storage map
+	if common.EventTypeFullOps == eventType {
+		datamodel.GetDataStorage().Initialization(dataMap, version)
 	} else if common.EventTypePatchOps == eventType {
 
-		// TODO
+		// update part data to data storage
+		for k, v := range dataMap {
+			for k1, v1 := range v {
+				datamodel.GetDataStorage().Upsert(k, k1, v1, version)
+			}
+		}
 	}
 	return true
 }

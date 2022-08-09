@@ -19,6 +19,10 @@ type All struct {
 	Data        `json:"data"`
 }
 
+func (a *All) ToStorageType() map[Category]map[string]Item {
+	return nil
+}
+
 type FeatureFlag struct {
 	Id                  string                    `json:"id"`
 	IsArchived          bool                      `json:"isArchived"`
@@ -107,14 +111,12 @@ type Data struct {
 	Timestamp    int64              `json:"timestamp"`
 }
 
-
 type TimestampData interface {
 	GetId() string
 	IsArchived() bool
 	GetTimestamp() int64
 	GetType() int
 }
-
 
 func NewDataSyncMessage(timestamp int64, msgType string) DataSyncMessage {
 
