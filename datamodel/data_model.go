@@ -20,7 +20,14 @@ type All struct {
 }
 
 func (a *All) ToStorageType() map[Category]map[string]Item {
-	return nil
+	return a.Data.ToStorageType()
+}
+
+type TimestampData interface {
+	GetId() string
+	Archived() bool
+	GetTimestamp() int64
+	GetType() int
 }
 
 type FeatureFlag struct {
@@ -33,6 +40,122 @@ type FeatureFlag struct {
 	Rules               []TargetRule              `json:"fftuwmtr"`
 	Targets             []TargetIndividuals       `json:"targetIndividuals"`
 	Variations          []VariationOption         `json:"variationOptions"`
+}
+
+func (ff *FeatureFlag) GetId() string {
+	return ff.Id
+}
+
+func (ff *FeatureFlag) Archived() bool {
+	return ff.IsArchived
+}
+
+func (ff *FeatureFlag) GetTimestamp() int64 {
+	return ff.Timestamp
+}
+
+func (ff *FeatureFlag) GetType() int {
+	return common.FFCFeatureFlag
+}
+
+func (ff *FeatureFlag) ToArchivedTimestampData() TimestampData {
+
+	adata := ArchivedTimestampData{
+		Id:         ff.Id,
+		Timestamp:  ff.Timestamp,
+		IsArchived: ff.IsArchived,
+	}
+	return &adata
+}
+
+type ArchivedTimestampData struct {
+	Id         string `json:"id"`
+	IsArchived bool   `json:"isArchived"`
+	Timestamp  int64  `json:"timestamp"`
+}
+
+func (a *ArchivedTimestampData) GetId() string {
+	return a.Id
+}
+
+func (a *ArchivedTimestampData) Archived() bool {
+	return a.IsArchived
+}
+
+func (a *ArchivedTimestampData) GetTimestamp() int64 {
+	return a.Timestamp
+}
+
+func (a *ArchivedTimestampData) GetType() int {
+	return common.FFCArchivedVdata
+}
+
+type Segment struct {
+	Id         string       `json:"id"`
+	IsArchived bool         `json:"isArchived"`
+	Timestamp  int64        `json:"timestamp"`
+	Included   []string     `json:"included"`
+	Excluded   []string     `json:"excluded"`
+	Rules      []TargetRule `json:"rules"`
+}
+
+func (a *Segment) GetId() string {
+	return a.Id
+}
+
+func (a *Segment) Archived() bool {
+	return a.IsArchived
+}
+
+func (a *Segment) GetTimestamp() int64 {
+	return a.Timestamp
+}
+
+func (a *Segment) GetType() int {
+	return common.FFCSegment
+}
+
+func (ff *Segment) ToArchivedTimestampData() TimestampData {
+
+	adata := ArchivedTimestampData{
+		Id:         ff.Id,
+		Timestamp:  ff.Timestamp,
+		IsArchived: ff.IsArchived,
+	}
+	return &adata
+}
+
+type TimestampUserTag struct {
+	common.UserTag
+	Id         string `json:"id"`
+	IsArchived bool   `json:"isArchived"`
+	Timestamp  int64  `json:"timestamp"`
+}
+
+func (a *TimestampUserTag) GetId() string {
+	return a.Id
+}
+
+func (a *TimestampUserTag) Archived() bool {
+	return a.IsArchived
+}
+
+func (a *TimestampUserTag) GetTimestamp() int64 {
+	return a.Timestamp
+}
+
+func (a *TimestampUserTag) GetType() int {
+	return common.FFCSegment
+}
+
+func (ff *TimestampUserTag) ToArchivedTimestampData() TimestampData {
+
+	adata := ArchivedTimestampData{
+		Id:         ff.Id,
+		Timestamp:  ff.Timestamp,
+		IsArchived: ff.IsArchived,
+	}
+	return &adata
 }
 
 type FeatureFlagBasicInfo struct {
@@ -87,22 +210,6 @@ type FeatureFlagTargetIndividualUser struct {
 	Email string `json:"email"`
 }
 
-type Segment struct {
-	Id         string       `json:"id"`
-	IsArchived bool         `json:"isArchived"`
-	Timestamp  int64        `json:"timestamp"`
-	Included   []string     `json:"included"`
-	Excluded   []string     `json:"excluded"`
-	Rules      []TargetRule `json:"rules"`
-}
-
-type TimestampUserTag struct {
-	common.UserTag
-	Id         string `json:"id"`
-	IsArchived bool   `json:"isArchived"`
-	Timestamp  int64  `json:"timestamp"`
-}
-
 type Data struct {
 	EventType    string             `json:"eventType"`
 	FeatureFlags []FeatureFlag      `json:"featureFlags"`
@@ -111,13 +218,70 @@ type Data struct {
 	Timestamp    int64              `json:"timestamp"`
 }
 
-type TimestampData interface {
-	GetId() string
-	IsArchived() bool
-	GetTimestamp() int64
-	GetType() int
-}
+func (d *Data) ToStorageType() map[Category]map[string]Item {
 
+	// feature flags
+	featureFlags := d.FeatureFlags
+	featureFlagsMap := make(map[string]Item)
+	if len(featureFlags) > 0 {
+		for _, v := range featureFlags {
+			var timestampData TimestampData
+			if v.IsArchived {
+				timestampData = v.ToArchivedTimestampData()
+			} else {
+				timestampData = &v
+			}
+			item := Item{
+				item: timestampData,
+			}
+			featureFlagsMap[timestampData.GetId()] = item
+
+		}
+	}
+
+	// segments
+	segments := d.Segments
+	segmentsMap := make(map[string]Item)
+	if len(segments) > 0 {
+
+		for _, v := range segments {
+			var timestampData TimestampData
+			if v.IsArchived {
+				timestampData = v.ToArchivedTimestampData()
+			} else {
+				timestampData = &v
+			}
+			item := Item{
+				item: timestampData,
+			}
+			segmentsMap[timestampData.GetId()] = item
+		}
+	}
+
+	// user tags
+	userTags := d.UserTags
+	userTagsMap := make(map[string]Item)
+	if len(userTags) > 0 {
+		for _, v := range userTags {
+			var timestampData TimestampData
+			if v.IsArchived {
+				timestampData = v.ToArchivedTimestampData()
+			} else {
+				timestampData = &v
+			}
+			item := Item{
+				item: timestampData,
+			}
+			userTagsMap[timestampData.GetId()] = item
+		}
+	}
+	dataMap := make(map[Category]map[string]Item, 0)
+	dataMap[FeatuersCat] = featureFlagsMap
+	dataMap[SegmentsCat] = segmentsMap
+	dataMap[UserTagsCat] = userTagsMap
+
+	return dataMap
+}
 func NewDataSyncMessage(timestamp int64, msgType string) DataSyncMessage {
 
 	var data InternalData

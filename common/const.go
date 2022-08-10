@@ -18,4 +18,10 @@ const (
 
 	AuthParams           = "?token=%s&type=server&version=2"
 	DefaultStreamingPath = "/streaming"
+
+	FFCFeatureFlag     = 100
+	FFCArchivedVdata   = 200
+	FFCPersistentVdata = 300
+	FFCSegment         = 400
+	FFCUserTag         = 500
 )

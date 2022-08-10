@@ -19,7 +19,7 @@ type DataStorage interface {
 	Get(category Category, key string) Item
 
 	// GetAll Retrieves all items from the specified collection.
-	// @Param category specifies which colle`ction to use
+	// @Param category specifies which collection to use
 	// @Return a map of ids and their versioned items
 	GetAll(category Category) map[string]Item
 
@@ -88,7 +88,7 @@ func (im *InMemoryDataStorage) Get(category Category, key string) Item {
 		return Item{}
 	}
 	item := items[key]
-	if item == (Item{}) || item.item.IsArchived {
+	if item == (Item{}) || item.item.Archived() {
 		return Item{}
 	}
 	return item
@@ -106,7 +106,7 @@ func (im *InMemoryDataStorage) GetAll(category Category) map[string]Item {
 	itemsMap := make(map[string]Item, 0)
 	for k, v := range items {
 
-		if !v.item.IsArchived {
+		if !v.item.Archived() {
 			itemsMap[k] = v
 		}
 	}
@@ -117,14 +117,14 @@ func (im *InMemoryDataStorage) Upsert(category Category, key string, item Item, 
 
 	im.lock.Lock()
 	defer im.lock.Unlock()
-	if version <= 0 || im.version >= version || item == (Item{}) || item.item == (TimestampUserTag{}) {
+	if version <= 0 || im.version >= version || item == (Item{}) || item.item == nil {
 		return false
 	}
 
 	oldItems := im.dataStorageMap[category]
 	if oldItems != nil {
 		oldItem := oldItems[key]
-		if oldItem != (Item{}) && oldItem.item.Timestamp >= item.item.Timestamp {
+		if oldItem != (Item{}) && oldItem.item.GetTimestamp() >= item.item.GetTimestamp() {
 			return false
 		} else {
 			oldItems[key] = item

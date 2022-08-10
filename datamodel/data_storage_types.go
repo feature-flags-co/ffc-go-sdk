@@ -5,9 +5,9 @@ package datamodel
 // a feature flag, a user segment, etc
 
 var (
-	Featuers Category
-	Segments Category
-	UserTags Category
+	FeatuersCat Category
+	SegmentsCat Category
+	UserTagsCat Category
 )
 
 type Category struct {
@@ -17,13 +17,13 @@ type Category struct {
 }
 
 type Item struct {
-	item TimestampUserTag
+	item TimestampData
 }
 
 func init() {
-	Featuers = NewCategory("featureFlags", "/api/public/sdk/latest-feature-flags", "/streaming")
-	Segments = NewCategory("segments", "/api/public/sdk/latest-feature-flags", "/streaming")
-	UserTags = NewCategory("userTags", "/api/public/sdk/latest-feature-flags", "/streaming")
+	FeatuersCat = NewCategory("featureFlags", "/api/public/sdk/latest-feature-flags", "/streaming")
+	SegmentsCat = NewCategory("segments", "/api/public/sdk/latest-feature-flags", "/streaming")
+	UserTagsCat = NewCategory("userTags", "/api/public/sdk/latest-feature-flags", "/streaming")
 }
 func NewCategory(name string, pollingApiUrl string, streamingApiUrl string) Category {
 	return Category{
