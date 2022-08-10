@@ -99,28 +99,28 @@ type Segment struct {
 	Rules      []TargetRule `json:"rules"`
 }
 
-func (a *Segment) GetId() string {
-	return a.Id
+func (s *Segment) GetId() string {
+	return s.Id
 }
 
-func (a *Segment) Archived() bool {
-	return a.IsArchived
+func (s *Segment) Archived() bool {
+	return s.IsArchived
 }
 
-func (a *Segment) GetTimestamp() int64 {
-	return a.Timestamp
+func (s *Segment) GetTimestamp() int64 {
+	return s.Timestamp
 }
 
-func (a *Segment) GetType() int {
+func (s *Segment) GetType() int {
 	return common.FFCSegment
 }
 
-func (ff *Segment) ToArchivedTimestampData() TimestampData {
+func (s *Segment) ToArchivedTimestampData() TimestampData {
 
 	adata := ArchivedTimestampData{
-		Id:         ff.Id,
-		Timestamp:  ff.Timestamp,
-		IsArchived: ff.IsArchived,
+		Id:         s.Id,
+		Timestamp:  s.Timestamp,
+		IsArchived: s.IsArchived,
 	}
 	return &adata
 }
@@ -132,28 +132,28 @@ type TimestampUserTag struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
-func (a *TimestampUserTag) GetId() string {
-	return a.Id
+func (t *TimestampUserTag) GetId() string {
+	return t.Id
 }
 
-func (a *TimestampUserTag) Archived() bool {
-	return a.IsArchived
+func (t *TimestampUserTag) Archived() bool {
+	return t.IsArchived
 }
 
-func (a *TimestampUserTag) GetTimestamp() int64 {
-	return a.Timestamp
+func (t *TimestampUserTag) GetTimestamp() int64 {
+	return t.Timestamp
 }
 
-func (a *TimestampUserTag) GetType() int {
+func (t *TimestampUserTag) GetType() int {
 	return common.FFCSegment
 }
 
-func (ff *TimestampUserTag) ToArchivedTimestampData() TimestampData {
+func (t *TimestampUserTag) ToArchivedTimestampData() TimestampData {
 
 	adata := ArchivedTimestampData{
-		Id:         ff.Id,
-		Timestamp:  ff.Timestamp,
-		IsArchived: ff.IsArchived,
+		Id:         t.Id,
+		Timestamp:  t.Timestamp,
+		IsArchived: t.IsArchived,
 	}
 	return &adata
 }
