@@ -59,7 +59,7 @@ func GetDataStorage() *InMemoryDataStorage {
 	if dataStorage == nil {
 		dataStorage = &InMemoryDataStorage{
 			initialized:    false,
-			version:        0,
+			version:        -1,
 			lock:           sync.RWMutex{},
 			dataStorageMap: make(map[Category]map[string]Item, 0),
 		}
@@ -68,7 +68,7 @@ func GetDataStorage() *InMemoryDataStorage {
 }
 
 func (im *InMemoryDataStorage) Initialization(allData map[Category]map[string]Item, version int64) {
-	if version <= 0 || im.version >= version || allData == nil || len(allData) == 0 {
+	if version < 0 || im.version >= version || allData == nil || len(allData) == 0 {
 		return
 	}
 	im.lock.Lock()
@@ -117,7 +117,7 @@ func (im *InMemoryDataStorage) Upsert(category Category, key string, item Item, 
 
 	im.lock.Lock()
 	defer im.lock.Unlock()
-	if version <= 0 || im.version >= version || item == (Item{}) || item.item == nil {
+	if version < 0 || im.version >= version || item == (Item{}) || item.item == nil {
 		return false
 	}
 

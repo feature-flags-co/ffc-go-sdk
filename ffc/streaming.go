@@ -127,12 +127,11 @@ func (s *Streaming) Connect() {
 
 }
 
-func processDateAsync(data datamodel.All) bool {
+func processDateAsync(all datamodel.All) bool {
 
-	eventType := data.EventType
-	version := data.Timestamp
-
-	dataMap := data.ToStorageType()
+	eventType := all.EventType
+	version := all.Timestamp
+	dataMap := all.ToStorageType()
 
 	// init all data to data storage map
 	if common.EventTypeFullOps == eventType {
