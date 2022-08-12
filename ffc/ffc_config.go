@@ -2,7 +2,6 @@ package ffc
 
 import (
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -19,8 +18,8 @@ func init()  {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds | log.Ldate)
 }
 
-var ffcConfig *FFCConfig
-var ffcConfigBuilder *FFCConfigBuilder
+var ffcConfig *Config
+var ffcConfigBuilder *ConfigBuilder
 
 type HttpConfig struct {
 	ConnectTime time.Duration
@@ -28,7 +27,7 @@ type HttpConfig struct {
 	Headers     map[string]string
 }
 
-type FFCConfig struct {
+type Config struct {
 	StartWaitTime    time.Duration
 	OffLine          bool
 	HttpConfig       HttpConfig
@@ -40,33 +39,33 @@ type BasicConfig struct {
 	OffLine   bool
 }
 
-func DefaultFFCConfig() *FFCConfig {
+func DefaultFFCConfig() *Config {
 	if ffcConfig != nil {
 		return ffcConfig
 	} else {
-		ffb := FFCConfigBuilder{}
+		ffb := ConfigBuilder{}
 		return ffb.Build()
 	}
 }
 
-func DefaultFFCConfigBuilder() *FFCConfigBuilder {
+func DefaultFFCConfigBuilder() *ConfigBuilder {
 	if ffcConfigBuilder != nil {
 		return ffcConfigBuilder
 	} else {
-		ffb := FFCConfigBuilder{}
+		ffb := ConfigBuilder{}
 		return &ffb
 	}
 }
 
-// FFCConfigBuilder build data for ffcconfig object
-type FFCConfigBuilder struct {
+// ConfigBuilder build data for config object
+type ConfigBuilder struct {
 	StartWaitTime    time.Duration
 	StreamingBuilder *StreamingBuilder
 	Offline          bool
 }
 
-func (c *FFCConfigBuilder) Build() *FFCConfig {
-	ffcConfig := FFCConfig{
+func (c *ConfigBuilder) Build() *Config {
+	ffcConfig := Config{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
 			SocketTime:  HttpConfigDefaultSocketTime,
@@ -76,24 +75,16 @@ func (c *FFCConfigBuilder) Build() *FFCConfig {
 	return &ffcConfig
 }
 
-func (c *FFCConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *FFCConfigBuilder {
+func (c *ConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *ConfigBuilder {
 	c.StreamingBuilder = streamingBuilder
 	return c
 }
 
-func (c *FFCConfigBuilder) insightProcessorFactory() *FFCConfigBuilder {
+func (c *ConfigBuilder) insightProcessorFactory() *ConfigBuilder {
 	return c
 }
 
-func (c *FFCConfigBuilder) SetOffline(offline bool) *FFCConfigBuilder {
+func (c *ConfigBuilder) SetOffline(offline bool) *ConfigBuilder {
 	c.Offline = offline
 	return c
-}
-
-func HeaderBuilderFor(httpConfig HttpConfig) http.Header {
-	header := http.Header{}
-	for k, v := range httpConfig.Headers {
-		header.Add(k, v)
-	}
-	return header
 }

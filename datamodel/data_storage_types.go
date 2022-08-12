@@ -10,6 +10,12 @@ var (
 	UserTagsCat Category
 )
 
+func init() {
+	FeatuersCat = NewCategory("featureFlags", "/api/public/sdk/latest-feature-flags", "/streaming")
+	SegmentsCat = NewCategory("segments", "/api/public/sdk/latest-feature-flags", "/streaming")
+	UserTagsCat = NewCategory("userTags", "/api/public/sdk/latest-feature-flags", "/streaming")
+}
+
 type Category struct {
 	Name            string
 	PollingApiUrl   string
@@ -20,11 +26,6 @@ type Item struct {
 	item TimestampData
 }
 
-func init() {
-	FeatuersCat = NewCategory("featureFlags", "/api/public/sdk/latest-feature-flags", "/streaming")
-	SegmentsCat = NewCategory("segments", "/api/public/sdk/latest-feature-flags", "/streaming")
-	UserTagsCat = NewCategory("userTags", "/api/public/sdk/latest-feature-flags", "/streaming")
-}
 func NewCategory(name string, pollingApiUrl string, streamingApiUrl string) Category {
 	return Category{
 		Name:            name,

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -82,3 +83,10 @@ func DefaultHeaders(envSecret string) map[string]string {
 // HeaderBuilderFor convert http config header to request headers
 // @Param httpConfig
 // @Return http headers
+func HeaderBuilderFor(headers map[string]string) http.Header {
+	header := http.Header{}
+	for k, v := range headers {
+		header.Add(k, v)
+	}
+	return header
+}

@@ -65,7 +65,7 @@ func (s *Streaming) Connect() {
 	log.Printf("connecting: %s", path)
 
 	// build request headers
-	headers := HeaderBuilderFor(s.HttpConfig)
+	headers := utils.HeaderBuilderFor(s.HttpConfig.Headers)
 
 	// setup web socket connection
 	c, rsp, err := websocket.DefaultDialer.Dial(path, headers)
