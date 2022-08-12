@@ -32,14 +32,15 @@ func websocket() {
 		SetOffline(false).
 		UpdateProcessorFactory(streamingBuilder).
 		Build()
-	client := ffc.NewFFCClient(envSecret, config)
+	client := ffc.NewClient(envSecret, config)
 
+	fmt.Println(client)
 	tags := client.GetAllUserTags()
 	fmt.Println(tags)
-
 
 }
 func main() {
 	websocket()
 	fmt.Print(utils.BuildToken("ad2sdfad="))
+	select {}
 }

@@ -15,7 +15,7 @@ func NewClient(envSecret string, config *Config) Client {
 	basicConfig := BasicConfig{OffLine: config.OffLine, EnvSecret: envSecret}
 	contextConfig := Context{BasicConfig: basicConfig, HttpConfig: config.HttpConfig}
 	stream := NewStreaming(contextConfig, config.StreamingBuilder.StreamingURI)
-	stream.Connect()
+	go stream.Connect()
 	return Client{Offline: config.OffLine}
 }
 
