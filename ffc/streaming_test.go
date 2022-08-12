@@ -6,5 +6,11 @@ import (
 )
 
 func TestPing(t *testing.T) {
-	Ping(time.Now())
+
+	tt := timePtr(time.Now())
+	PingOrDataSync(tt, "")
+}
+
+func timePtr(t time.Time) *time.Time {
+	return &t
 }
