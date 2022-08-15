@@ -3,10 +3,12 @@ package ffc
 import (
 	"github.com/feature-flags-co/ffc-go-sdk/common"
 	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
+	"log"
 )
 
 type Client struct {
-	Offline bool
+	Offline   bool
+	Evaluator Evaluator
 }
 
 // NewClient create a new client instance.
@@ -16,7 +18,13 @@ func NewClient(envSecret string, config *Config) Client {
 	contextConfig := Context{BasicConfig: basicConfig, HttpConfig: config.HttpConfig}
 	stream := NewStreaming(contextConfig, config.StreamingBuilder.StreamingURI)
 	go stream.Connect()
-	return Client{Offline: config.OffLine}
+
+	// TODO init this Evaluator Object
+	var evaluator Evaluator
+	return Client{
+		Offline:   config.OffLine,
+		Evaluator: evaluator,
+	}
 }
 
 // IsInitialized Tests whether the client is ready to be used.
@@ -302,4 +310,25 @@ func (c *Client) TrackMetricSeriesWithUser(user common.FFCUser, metrics map[stri
 // TrackMetricSeries tracks that a user performed an event and provides a default numeric value for custom metrics
 // @Param metrics event name and numeric value in K/V
 func (c *Client) TrackMetricSeries(metrics map[string]float64) {
+}
+
+func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, defaultValue interface{},
+	checkType bool) datamodel.EvalResult {
+
+	// not finish init data
+	if !c.IsInitialized() {
+		log.Print("FFC GO SDK: evaluation is called before GO SDK client is initialized for feature flag, " +
+			"well using the default value")
+		return datamodel.ErrorWithDefaultValue(defaultValue.(string),
+			common.EvaReasonClientNotReady,
+			featureFlagKey,
+			common.EvaFlagNameUnknown)
+	}
+
+	// TODO 
+	var featureFlag datamodel.FeatureFlag
+	event := datamodel.OfFlagEvent(user)
+
+	evaResult := c.Evaluator.Evaluate(featureFlag, user, &event)
+	return evaResult
 }

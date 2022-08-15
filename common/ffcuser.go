@@ -73,6 +73,10 @@ func (f *FFCUser) GetProperty(attribute string) string {
 	return f.Custom[attribute]
 }
 
+func (f *FFCUser) IsEmpty() bool {
+	return f == nil
+}
+
 func NewFFUserBuilder() *FFUserBuilder {
 	return new(FFUserBuilder)
 }
