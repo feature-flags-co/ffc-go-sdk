@@ -2,23 +2,23 @@ package ffc
 
 import (
 	"github.com/feature-flags-co/ffc-go-sdk/common"
-	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
 )
 
 type Evaluator struct {
-	FeatureFlag datamodel.FeatureFlag
-	Segment     datamodel.Segment
+	FeatureFlag model.FeatureFlag
+	Segment     model.Segment
 }
 
-func NewEvaluator(featureFlag datamodel.FeatureFlag, segment datamodel.Segment) Evaluator {
+func NewEvaluator(featureFlag model.FeatureFlag, segment model.Segment) Evaluator {
 	return Evaluator{
 		FeatureFlag: featureFlag,
 		Segment:     segment,
 	}
 }
 
-func (e *Evaluator) Evaluate(flag datamodel.FeatureFlag, user common.FFCUser, event datamodel.Event) datamodel.EvalResult {
+func (e *Evaluator) Evaluate(flag model.FeatureFlag, user common.FFCUser, event model.Event) model.EvalResult {
 
 	// TODO will finish this code
-	return datamodel.EvalResult{}
+	return model.EvalResult{}
 }

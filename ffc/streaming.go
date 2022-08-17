@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/feature-flags-co/ffc-go-sdk/common"
-	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
 	"log"
@@ -39,7 +39,7 @@ func PingOrDataSync(stime *time.Time, msgType string) {
 	} else {
 		timestamp = stime.UnixNano() / 1e6
 	}
-	syncMessage := datamodel.NewDataSyncMessage(timestamp, msgType)
+	syncMessage := model.NewDataSyncMessage(timestamp, msgType)
 	msg, _ := json.Marshal(syncMessage)
 	log.Printf("ping message:%v", string(msg))
 	if sockectConn != nil {
@@ -127,7 +127,7 @@ func (s *Streaming) Connect() {
 
 }
 
-func processDateAsync(all datamodel.All) bool {
+func processDateAsync(all model.All) bool {
 
 	eventType := all.EventType
 	version := all.Timestamp
@@ -135,13 +135,13 @@ func processDateAsync(all datamodel.All) bool {
 
 	// init all data to data storage map
 	if common.EventTypeFullOps == eventType {
-		datamodel.GetDataStorage().Initialization(dataMap, version)
+		model.GetDataStorage().Initialization(dataMap, version)
 	} else if common.EventTypePatchOps == eventType {
 
 		// update part data to data storage
 		for k, v := range dataMap {
 			for k1, v1 := range v {
-				datamodel.GetDataStorage().Upsert(k, k1, v1, version)
+				model.GetDataStorage().Upsert(k, k1, v1, version)
 			}
 		}
 	}
@@ -151,7 +151,7 @@ func processDateAsync(all datamodel.All) bool {
 // ProcessMessage receive message from web socket and convert to all object.
 // @Param message the data receive from socket
 func ProcessMessage(message string) {
-	var msgModel datamodel.StreamingMessage
+	var msgModel model.StreamingMessage
 	err := json.Unmarshal([]byte(message), &msgModel)
 	if err != nil {
 		log.Fatalf("process message to StreamingMessage object error, error = %v", err)
@@ -160,7 +160,7 @@ func ProcessMessage(message string) {
 
 	// process data sync message
 	if common.MsgTypeDataSync == msgModel.MessageType {
-		var all datamodel.All
+		var all model.All
 		err = json.Unmarshal([]byte(message), &all)
 		if err != nil {
 			log.Fatalf("process message to All object error, error = %v", err)

@@ -2,13 +2,16 @@ package ffc
 
 import (
 	"github.com/feature-flags-co/ffc-go-sdk/common"
-	"github.com/feature-flags-co/ffc-go-sdk/datamodel"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
+	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"log"
 )
 
 type Client struct {
-	Offline   bool
-	Evaluator Evaluator
+	Offline     bool
+	Evaluator   Evaluator
+	EnvSecret   string
+	dataStorage model.DataStorage
 }
 
 // NewClient create a new client instance.
@@ -22,15 +25,17 @@ func NewClient(envSecret string, config *Config) Client {
 	// TODO init this Evaluator Object
 	var evaluator Evaluator
 	return Client{
-		Offline:   config.OffLine,
-		Evaluator: evaluator,
+		Offline:     config.OffLine,
+		Evaluator:   evaluator,
+		EnvSecret:   envSecret,
+		dataStorage: model.GetDataStorage(),
 	}
 }
 
 // IsInitialized Tests whether the client is ready to be used.
 // @Return true if the client is ready, or false if it is still initializing
 func (c *Client) IsInitialized() bool {
-	return datamodel.GetDataStorage().IsInitialized()
+	return c.dataStorage.IsInitialized()
 }
 
 // VariationWithUser Calculates the value of a feature flag for a given user.
@@ -39,16 +44,8 @@ func (c *Client) IsInitialized() bool {
 // @Param defaultValue the default value of the flag
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
 func (c *Client) VariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue string) string {
-
-	return ""
-}
-
-// Variation Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) Variation(featureFlagKey string, defaultValue string) string {
-	return ""
+	evalResult := c.evaluateInternal(featureFlagKey, user, defaultValue, false)
+	return evalResult.Value
 }
 
 // BoolVariationWithUser Calculates the value of a feature flag for a given user.
@@ -56,35 +53,18 @@ func (c *Client) Variation(featureFlagKey string, defaultValue string) string {
 // @Param user the end user requesting the flag
 // @Param defaultValue the default value of the flag
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) BoolVariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue bool) string {
-
-	return ""
-}
-
-// BoolVariation Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) BoolVariation(featureFlagKey string, defaultValue bool) string {
-
-	return ""
+func (c *Client) BoolVariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue bool) bool {
+	evalResult := c.evaluateInternal(featureFlagKey, user, defaultValue, true)
+	return utils.ToBool(evalResult.Value)
 }
 
 // IsEnableWithUser alias of boolVariation for a given user
 // @Param featureFlagKey the unique key for the feature flag
 // @Param user the end user requesting the flag
 // @Return if the flag should be enabled, or false if the flag is disabled, or an error occurs
-func (c *Client) IsEnableWithUser(featureFlagKey string, user common.FFCUser) string {
-
-	return ""
-}
-
-// IsEnable alias of boolVariation for a given user
-// @Param featureFlagKey the unique key for the feature flag
-// @Return if the flag should be enabled, or false if the flag is disabled, or an error occurs
-func (c *Client) IsEnable(featureFlagKey string) string {
-
-	return ""
+func (c *Client) IsEnableWithUser(featureFlagKey string, user common.FFCUser) bool {
+	evalResult := c.evaluateInternal(featureFlagKey, user, false, true)
+	return utils.ToBool(evalResult.Value)
 }
 
 // FloatVariationWithUser Calculates the value of a feature flag for a given user.
@@ -92,17 +72,9 @@ func (c *Client) IsEnable(featureFlagKey string) string {
 // @Param user the end user requesting the flag
 // @Param defaultValue the default value of the flag
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) FloatVariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue float64) string {
-
-	return ""
-}
-
-// FloatVariation Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) FloatVariation(featureFlagKey string, defaultValue float64) string {
-	return ""
+func (c *Client) FloatVariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue float64) float64 {
+	evalResult := c.evaluateInternal(featureFlagKey, user, defaultValue, true)
+	return utils.GetFloat64(evalResult.Value)
 }
 
 // IntVariationWithUser Calculates the value of a feature flag for a given user.
@@ -110,18 +82,9 @@ func (c *Client) FloatVariation(featureFlagKey string, defaultValue float64) str
 // @Param user the end user requesting the flag
 // @Param defaultValue the default value of the flag
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) IntVariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue int) string {
-
-	return ""
-}
-
-// IntVariation Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) IntVariation(featureFlagKey string, defaultValue int) string {
-
-	return ""
+func (c *Client) IntVariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue int) int {
+	evalResult := c.evaluateInternal(featureFlagKey, user, defaultValue, true)
+	return utils.GetInt(evalResult.Value)
 }
 
 // Int64VariationWithUser Calculates the value of a feature flag for a given user.
@@ -129,18 +92,9 @@ func (c *Client) IntVariation(featureFlagKey string, defaultValue int) string {
 // @Param user the end user requesting the flag
 // @Param defaultValue the default value of the flag
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) Int64VariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue int64) string {
-
-	return ""
-}
-
-// Int64Variation Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) Int64Variation(featureFlagKey string, defaultValue int64) string {
-
-	return ""
+func (c *Client) Int64VariationWithUser(featureFlagKey string, user common.FFCUser, defaultValue int64) int64 {
+	evalResult := c.evaluateInternal(featureFlagKey, user, defaultValue, true)
+	return utils.GetInt64(evalResult.Value)
 }
 
 // IsFlagKnown Returns true if the specified feature flag currently exists.
@@ -181,14 +135,6 @@ func (c *Client) VariationDetailWithUser(featureFlagKey string, user common.FFCU
 	return common.FlagState{}
 }
 
-// VariationDetail Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) VariationDetail(featureFlagKey string, defaultValue string) common.FlagState {
-	return common.FlagState{}
-}
-
 // BoolVariationDetailWithUser Calculates the value of a feature flag for a given user.
 // @Param featureFlagKey the unique key for the feature flag
 // @Param user the end user requesting the flag
@@ -196,14 +142,6 @@ func (c *Client) VariationDetail(featureFlagKey string, defaultValue string) com
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
 func (c *Client) BoolVariationDetailWithUser(featureFlagKey string, user common.FFCUser,
 	defaultValue bool) common.FlagState {
-	return common.FlagState{}
-}
-
-// BoolVariationDetail Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) BoolVariationDetail(featureFlagKey string, defaultValue bool) common.FlagState {
 	return common.FlagState{}
 }
 
@@ -217,14 +155,6 @@ func (c *Client) FloatVariationDetailWithUser(featureFlagKey string, user common
 	return common.FlagState{}
 }
 
-// FloatVariationDetail Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) FloatVariationDetail(featureFlagKey string, defaultValue float64) common.FlagState {
-	return common.FlagState{}
-}
-
 // IntVariationDetailWithUser Calculates the value of a feature flag for a given user.
 // @Param featureFlagKey the unique key for the feature flag
 // @Param user the end user requesting the flag
@@ -235,14 +165,6 @@ func (c *Client) IntVariationDetailWithUser(featureFlagKey string, user common.F
 	return common.FlagState{}
 }
 
-// IntVariationDetail Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) IntVariationDetail(featureFlagKey string, defaultValue int) common.FlagState {
-	return common.FlagState{}
-}
-
 // Int64VariationDetailWithUser Calculates the value of a feature flag for a given user.
 // @Param featureFlagKey the unique key for the feature flag
 // @Param user the end user requesting the flag
@@ -250,14 +172,6 @@ func (c *Client) IntVariationDetail(featureFlagKey string, defaultValue int) com
 // @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
 func (c *Client) Int64VariationDetailWithUser(featureFlagKey string, user common.FFCUser,
 	defaultValue int64) common.FlagState {
-	return common.FlagState{}
-}
-
-// Int64VariationDetail Calculates the value of a feature flag for a given user.
-// @Param featureFlagKey the unique key for the feature flag
-// @Param defaultValue the default value of the flag
-// @Return  the variation for the given user, or defaultValue if the flag is disabled or an error occurs
-func (c *Client) Int64VariationDetail(featureFlagKey string, defaultValue int64) common.FlagState {
 	return common.FlagState{}
 }
 
@@ -312,23 +226,63 @@ func (c *Client) TrackMetricSeriesWithUser(user common.FFCUser, metrics map[stri
 func (c *Client) TrackMetricSeries(metrics map[string]float64) {
 }
 
-func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, defaultValue interface{},
-	checkType bool) datamodel.EvalResult {
+func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, defaultValue interface{}, checkType bool) model.EvalResult {
 
 	// not finish init data
 	if !c.IsInitialized() {
 		log.Print("FFC GO SDK: evaluation is called before GO SDK client is initialized for feature flag, " +
 			"well using the default value")
-		return datamodel.ErrorWithDefaultValue(defaultValue.(string),
+		return model.ErrorWithDefaultValue(defaultValue.(string),
 			common.EvaReasonClientNotReady,
 			featureFlagKey,
 			common.EvaFlagNameUnknown)
 	}
 
-	// TODO 
-	var featureFlag datamodel.FeatureFlag
-	event := datamodel.OfFlagEvent(user)
+	// featureFlagKey is blank
+	if len(featureFlagKey) == 0 {
+		log.Print("FFC GO SDK:null feature flag key; returning default value")
+		model.ErrorWithDefaultValue(defaultValue.(string),
+			common.EvaReasonFlagNotFound,
+			featureFlagKey,
+			common.EvaFlagNameUnknown)
+	}
+	featureFlag := c.getFlagInternal(featureFlagKey)
+	if len(featureFlag.Id) == 0 {
+		log.Printf("FFC GO SDK:unknown feature flag %s; returning default value", featureFlagKey)
+		model.ErrorWithDefaultValue(defaultValue.(string),
+			common.EvaReasonFlagNotFound,
+			featureFlagKey,
+			common.EvaFlagNameUnknown)
+	}
 
+	if len(user.UserName) == 0 {
+		log.Printf("FFC GO SDK:null user for feature flag  %s; returning default value", featureFlagKey)
+		model.ErrorWithDefaultValue(defaultValue.(string),
+			common.EvaReasonUserNotSpecified,
+			featureFlagKey,
+			common.EvaFlagNameUnknown)
+	}
+
+	event := model.OfFlagEvent(user)
 	evaResult := c.Evaluator.Evaluate(featureFlag, user, &event)
+
+	if checkType {
+		log.Printf("FFC GO SDK:evaluation result %s didn't matched expected type ", evaResult.Value)
+		model.ErrorWithDefaultValue(defaultValue.(string),
+			common.EvaReasonWrongType,
+			evaResult.KeyName,
+			evaResult.Name)
+	}
+
 	return evaResult
+}
+
+func (c *Client) getFlagInternal(featureFlagKey string) model.FeatureFlag {
+	flagId := model.NewFeatureFlagIdByEnvSecret(c.EnvSecret, featureFlagKey).GetFeatureFlagId()
+	item := c.dataStorage.Get(model.FeaturesCat, flagId)
+	if item == (model.Item{}) {
+		return model.FeatureFlag{}
+	}
+	return item.Item.(model.FeatureFlag)
+
 }

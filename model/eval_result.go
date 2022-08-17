@@ -1,4 +1,4 @@
-package datamodel
+package model
 
 import "github.com/feature-flags-co/ffc-go-sdk/common"
 
@@ -28,3 +28,4 @@ func Error(reason string, keyName string, name string) EvalResult {
 func ErrorWithDefaultValue(defaultValue string, reason string, keyName string, name string) EvalResult {
 	return NewEvalResult(defaultValue, common.EvaNoEvalRes, reason, false, keyName, name)
 }
+

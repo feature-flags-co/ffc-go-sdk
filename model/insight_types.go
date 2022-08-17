@@ -1,4 +1,4 @@
-package datamodel
+package model
 
 import "github.com/feature-flags-co/ffc-go-sdk/common"
 

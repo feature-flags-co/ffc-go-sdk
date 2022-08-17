@@ -1,4 +1,4 @@
-package datamodel
+package model
 
 import "github.com/feature-flags-co/ffc-go-sdk/common"
 
@@ -42,23 +42,23 @@ type FeatureFlag struct {
 	Variations          []VariationOption         `json:"variationOptions"`
 }
 
-func (ff *FeatureFlag) GetId() string {
+func (ff FeatureFlag) GetId() string {
 	return ff.Id
 }
 
-func (ff *FeatureFlag) Archived() bool {
+func (ff FeatureFlag) Archived() bool {
 	return ff.IsArchived
 }
 
-func (ff *FeatureFlag) GetTimestamp() int64 {
+func (ff FeatureFlag) GetTimestamp() int64 {
 	return ff.Timestamp
 }
 
-func (ff *FeatureFlag) GetType() int {
+func (ff FeatureFlag) GetType() int {
 	return common.FFCFeatureFlag
 }
 
-func (ff *FeatureFlag) ToArchivedTimestampData() TimestampData {
+func (ff FeatureFlag) ToArchivedTimestampData() TimestampData {
 
 	adata := ArchivedTimestampData{
 		Id:         ff.Id,
@@ -232,7 +232,7 @@ func (d *Data) ToStorageType() map[Category]map[string]Item {
 				timestampData = &v
 			}
 			item := Item{
-				item: timestampData,
+				Item: timestampData,
 			}
 			featureFlagsMap[timestampData.GetId()] = item
 
@@ -252,7 +252,7 @@ func (d *Data) ToStorageType() map[Category]map[string]Item {
 				timestampData = &v
 			}
 			item := Item{
-				item: timestampData,
+				Item: timestampData,
 			}
 			segmentsMap[timestampData.GetId()] = item
 		}
@@ -270,13 +270,13 @@ func (d *Data) ToStorageType() map[Category]map[string]Item {
 				timestampData = &v
 			}
 			item := Item{
-				item: timestampData,
+				Item: timestampData,
 			}
 			userTagsMap[timestampData.GetId()] = item
 		}
 	}
 	dataMap := make(map[Category]map[string]Item, 0)
-	dataMap[FeatuersCat] = featureFlagsMap
+	dataMap[FeaturesCat] = featureFlagsMap
 	dataMap[SegmentsCat] = segmentsMap
 	dataMap[UserTagsCat] = userTagsMap
 
