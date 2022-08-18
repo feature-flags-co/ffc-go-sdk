@@ -1,9 +1,11 @@
 package ffc
 
 import (
+	"encoding/json"
 	"github.com/feature-flags-co/ffc-go-sdk/common"
 	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"log"
+	"strings"
 )
 
 type Evaluator struct {
@@ -78,4 +80,155 @@ func matchTargetedUserVariation(flag model.FeatureFlag, user common.FFCUser) *mo
 func matchFeatureFlagDisabledUserVariation(flag model.FeatureFlag, user common.FFCUser, event model.Event) *model.EvalResult {
 
 	return nil
+}
+
+func equalsClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	pv := user.GetProperty(clause.Property)
+	value := clause.Value
+	return len(pv) > 0 && pv == value
+}
+
+func containsClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	pv := user.GetProperty(clause.Property)
+	value := clause.Value
+	return len(pv) > 0 && strings.Contains(pv, value)
+
+}
+
+func oneOfClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	pv := user.GetProperty(clause.Property)
+	var values []string
+	err := json.Unmarshal([]byte(clause.Value), &values)
+	if err != nil {
+		log.Printf("oneOfClause to json error, error = %v", err)
+		return false
+	}
+	if len(pv) == 0 {
+		return false
+	}
+	for _, v := range values {
+		if pv == v {
+			return true
+		}
+	}
+	return false
+}
+func startsWithClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	pv := user.GetProperty(clause.Property)
+	value := clause.Value
+	return len(pv) > 0 && strings.HasPrefix(pv, value)
+}
+
+func endsWithClause(user common.FFCUser, clause model.RuleItem) bool {
+	pv := user.GetProperty(clause.Property)
+	value := clause.Value
+	return len(pv) > 0 && strings.HasSuffix(pv, value)
+
+}
+func trueClause(user common.FFCUser, clause model.RuleItem) bool {
+	pv := user.GetProperty(clause.Property)
+	if len(pv) > 0 && strings.ToLower(pv) == "true" {
+		return true
+	}
+	return false
+}
+func falseClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	pv := user.GetProperty(clause.Property)
+	if len(pv) > 0 && strings.ToLower(pv) == "false" {
+		return true
+	}
+	return false
+}
+
+func matchRegExClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	// TODO
+	return false
+}
+
+func inSegmentClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	// TODO
+	return false
+}
+
+func thanClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	//pv := user.GetProperty(clause.Property)
+	//clauseValue := clause.Value
+
+	// TODO
+
+	return false
+}
+
+func ifUserMatchClause(user common.FFCUser, clause model.RuleItem) bool {
+
+	var op string
+	op = clause.Operation
+	// segment hasn't any operation
+	if len(op) == 0 {
+		op = clause.Property
+	}
+
+	if strings.Contains(op, common.EvaThanClause) {
+		return thanClause(user, clause)
+	}
+	if strings.Contains(op, common.EvaEqClause) {
+		return equalsClause(user, clause)
+	}
+	if strings.Contains(op, common.EvaNeqClause) {
+		return !equalsClause(user, clause)
+	}
+	if strings.Contains(op, common.EvaContainsClause) {
+		return containsClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaNotContainClause) {
+		return !containsClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaIsOneOfClause) {
+		return oneOfClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaNotOneOfClause) {
+		return !oneOfClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaStartsWithClause) {
+		return startsWithClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaEndsWithClause) {
+		return endsWithClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaIsTrueClause) {
+		return trueClause(user, clause)
+	}
+	if strings.Contains(op, common.EvaIsFalseClause) {
+		return falseClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaMatchRegexClause) {
+		return matchRegExClause(user, clause)
+	}
+	if strings.Contains(op, common.EvaNotMatchRegexClause) {
+		return !matchRegExClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaIsInSegmentClause) {
+		return inSegmentClause(user, clause)
+	}
+
+	if strings.Contains(op, common.EvaNotInSegmentClause) {
+		return !inSegmentClause(user, clause)
+	}
+	return false
 }

@@ -88,7 +88,7 @@ func (im *InMemoryDataStorage) Get(category Category, key string) Item {
 		return Item{}
 	}
 	item := items[key]
-	if item == (Item{}) || item.item.Archived() {
+	if item == (Item{}) || item.Item.Archived() {
 		return Item{}
 	}
 	return item
@@ -106,7 +106,7 @@ func (im *InMemoryDataStorage) GetAll(category Category) map[string]Item {
 	itemsMap := make(map[string]Item, 0)
 	for k, v := range items {
 
-		if !v.item.Archived() {
+		if !v.Item.Archived() {
 			itemsMap[k] = v
 		}
 	}
@@ -117,14 +117,14 @@ func (im *InMemoryDataStorage) Upsert(category Category, key string, item Item, 
 
 	im.lock.Lock()
 	defer im.lock.Unlock()
-	if version < 0 || im.version >= version || item == (Item{}) || item.item == nil {
+	if version < 0 || im.version >= version || item == (Item{}) || item.Item == nil {
 		return false
 	}
 
 	oldItems := im.dataStorageMap[category]
 	if oldItems != nil {
 		oldItem := oldItems[key]
-		if oldItem != (Item{}) && oldItem.item.GetTimestamp() >= item.item.GetTimestamp() {
+		if oldItem != (Item{}) && oldItem.Item.GetTimestamp() >= item.Item.GetTimestamp() {
 			return false
 		} else {
 			oldItems[key] = item
