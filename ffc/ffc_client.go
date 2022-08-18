@@ -102,7 +102,12 @@ func (c *Client) Int64VariationWithUser(featureFlagKey string, user common.FFCUs
 // @Return true if the flag exists
 func (c *Client) IsFlagKnown(featureFlagKey string) bool {
 
-	return false
+	if !c.IsInitialized() {
+		log.Printf("FFC GO SDK: isFlagKnown is called before Java SDK client is initialized for feature flag")
+		return false
+	}
+	flag := c.getFlagInternal(featureFlagKey)
+	return len(flag.Id) == 0
 }
 
 // InitializeFromExternalJson initialization in the offline mode
@@ -274,6 +279,10 @@ func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, de
 			evaResult.KeyName,
 			evaResult.Name)
 	}
+
+	// TODO
+	//eventHandler.accept(event);
+
 	er := model.EvalResult{
 		Index:            evaResult.Index,
 		Value:            evaResult.Value,
