@@ -226,7 +226,8 @@ func (c *Client) TrackMetricSeriesWithUser(user common.FFCUser, metrics map[stri
 func (c *Client) TrackMetricSeries(metrics map[string]float64) {
 }
 
-func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, defaultValue interface{}, checkType bool) model.EvalResult {
+func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, defaultValue interface{},
+	checkType bool) model.EvalResult {
 
 	// not finish init data
 	if !c.IsInitialized() {
@@ -273,8 +274,15 @@ func (c *Client) evaluateInternal(featureFlagKey string, user common.FFCUser, de
 			evaResult.KeyName,
 			evaResult.Name)
 	}
-
-	return evaResult
+	er := model.EvalResult{
+		Index:            evaResult.Index,
+		Value:            evaResult.Value,
+		Reason:           evaResult.Reason,
+		SendToExperiment: evaResult.SendToExperiment,
+		KeyName:          evaResult.KeyName,
+		Name:             evaResult.Name,
+	}
+	return er
 }
 
 func (c *Client) getFlagInternal(featureFlagKey string) model.FeatureFlag {

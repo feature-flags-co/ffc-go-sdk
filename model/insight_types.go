@@ -1,6 +1,9 @@
 package model
 
-import "github.com/feature-flags-co/ffc-go-sdk/common"
+import (
+	"github.com/feature-flags-co/ffc-go-sdk/common"
+	"time"
+)
 
 type Event interface {
 	IsSendEvent() bool
@@ -28,8 +31,17 @@ type FlagEvent struct {
 type FlagEventVariation struct {
 	FeatureFlagKeyName string
 	Timestamp          int64
+	Variation          *EvalResult
 }
 
+func OfFlagEventVariation(featureFlagKeyName string, variation *EvalResult) FlagEventVariation {
+
+	return FlagEventVariation{
+		FeatureFlagKeyName: featureFlagKeyName,
+		Timestamp:          time.Now().UnixNano() / 1e6,
+		Variation:          variation,
+	}
+}
 func (f *FlagEvent) IsSendEvent() bool {
 	// TODO
 	return false
