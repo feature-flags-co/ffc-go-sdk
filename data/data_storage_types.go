@@ -1,4 +1,4 @@
-package model
+package data
 
 // Category Represents a separated namespace of storable data items.
 // The SDK passes instances of this type to the data store to specify whether it is referring to

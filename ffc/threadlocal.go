@@ -1,7 +1,7 @@
 package ffc
 
 import (
-	"github.com/feature-flags-co/ffc-go-sdk/common"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/timandy/routine"
 )
 
@@ -13,12 +13,12 @@ func init() {
 	inheritableThreadLocal = routine.NewInheritableThreadLocal()
 }
 
-func GetCurrentUser() common.FFCUser {
+func GetCurrentUser() model.FFCUser {
 
-	var ffUser common.FFCUser
-	ffUser = inheritableThreadLocal.Get().(common.FFCUser)
+	var ffUser model.FFCUser
+	ffUser = inheritableThreadLocal.Get().(model.FFCUser)
 	if ffUser.IsEmpty() {
-		ffUser = threadLocal.Get().(common.FFCUser)
+		ffUser = threadLocal.Get().(model.FFCUser)
 	}
 	return ffUser
 }
@@ -28,7 +28,7 @@ func Remove() {
 	inheritableThreadLocal.Remove()
 }
 
-func SetCurrentUser(user common.FFCUser, inherit bool) {
+func SetCurrentUser(user model.FFCUser, inherit bool) {
 
 	if inherit {
 		inheritableThreadLocal.Set(user)

@@ -1,7 +1,7 @@
-package model
+package data
 
 import (
-	"github.com/feature-flags-co/ffc-go-sdk/common"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"time"
 )
 
@@ -11,7 +11,7 @@ type Event interface {
 }
 
 type DefaultEvent struct {
-	User common.FFCUser
+	User model.FFCUser
 }
 
 func (f *DefaultEvent) IsSendEvent() bool {
@@ -52,7 +52,7 @@ func (f *FlagEvent) Add(element interface{}) Event {
 	return nil
 }
 
-func OfFlagEvent(user common.FFCUser) FlagEvent {
+func OfFlagEvent(user model.FFCUser) FlagEvent {
 	event := DefaultEvent{
 		User: user,
 	}

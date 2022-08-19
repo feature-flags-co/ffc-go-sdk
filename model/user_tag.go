@@ -1,4 +1,4 @@
-package common
+package model
 
 type UserTag struct {
 	RequestProperty string `json:"requestProperty"`

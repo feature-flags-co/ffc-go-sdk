@@ -1,6 +1,6 @@
-package model
+package data
 
-import "github.com/feature-flags-co/ffc-go-sdk/common"
+import "github.com/feature-flags-co/ffc-go-sdk/model"
 
 type StreamingMessage struct {
 	MessageType string `json:"messageType"`
@@ -55,7 +55,7 @@ func (ff FeatureFlag) GetTimestamp() int64 {
 }
 
 func (ff FeatureFlag) GetType() int {
-	return common.FFCFeatureFlag
+	return model.FFCFeatureFlag
 }
 
 func (ff FeatureFlag) ToArchivedTimestampData() TimestampData {
@@ -87,7 +87,7 @@ func (a *ArchivedTimestampData) GetTimestamp() int64 {
 }
 
 func (a *ArchivedTimestampData) GetType() int {
-	return common.FFCArchivedVdata
+	return model.FFCArchivedVdata
 }
 
 type Segment struct {
@@ -112,7 +112,7 @@ func (s *Segment) GetTimestamp() int64 {
 }
 
 func (s *Segment) GetType() int {
-	return common.FFCSegment
+	return model.FFCSegment
 }
 
 func (s *Segment) ToArchivedTimestampData() TimestampData {
@@ -125,8 +125,31 @@ func (s *Segment) ToArchivedTimestampData() TimestampData {
 	return &adata
 }
 
+type Bool struct {
+	Value bool
+}
+
+func (s *Segment) IsMatchUser(userKeyId string) *Bool {
+
+	for _, v := range s.Excluded {
+		if v == userKeyId {
+			return &Bool{
+				Value: false,
+			}
+		}
+	}
+	for _, v := range s.Included {
+		if v == userKeyId {
+			return &Bool{
+				Value: true,
+			}
+		}
+	}
+	return nil
+}
+
 type TimestampUserTag struct {
-	common.UserTag
+	model.UserTag
 	Id         string `json:"id"`
 	IsArchived bool   `json:"isArchived"`
 	Timestamp  int64  `json:"timestamp"`
@@ -145,17 +168,17 @@ func (t *TimestampUserTag) GetTimestamp() int64 {
 }
 
 func (t *TimestampUserTag) GetType() int {
-	return common.FFCSegment
+	return model.FFCSegment
 }
 
 func (t *TimestampUserTag) ToArchivedTimestampData() TimestampData {
 
-	adata := ArchivedTimestampData{
+	aData := ArchivedTimestampData{
 		Id:         t.Id,
 		Timestamp:  t.Timestamp,
 		IsArchived: t.IsArchived,
 	}
-	return &adata
+	return &aData
 }
 
 type FeatureFlagBasicInfo struct {
@@ -193,6 +216,7 @@ type TargetRule struct {
 	RuleJsonContent                 []RuleItem                         `json:"ruleJsonContent"`
 	ValueOptionsVariationRuleValues []VariationOptionPercentageRollout `json:"valueOptionsVariationRuleValues"`
 }
+
 type RuleItem struct {
 	Property  string `json:"property"`
 	Operation string `json:"operation"`

@@ -1,6 +1,6 @@
-package model
+package data
 
-import "github.com/feature-flags-co/ffc-go-sdk/common"
+import "github.com/feature-flags-co/ffc-go-sdk/model"
 
 type EvalResult struct {
 	Index            int
@@ -23,9 +23,9 @@ func NewEvalResult(value string, index int, reason string, sendToExperiment bool
 	}
 }
 func Error(reason string, keyName string, name string) EvalResult {
-	return NewEvalResult("", common.EvaNoEvalRes, reason, false, keyName, name)
+	return NewEvalResult("", model.EvaNoEvalRes, reason, false, keyName, name)
 }
 func ErrorWithDefaultValue(defaultValue string, reason string, keyName string, name string) EvalResult {
-	return NewEvalResult(defaultValue, common.EvaNoEvalRes, reason, false, keyName, name)
+	return NewEvalResult(defaultValue, model.EvaNoEvalRes, reason, false, keyName, name)
 }
 

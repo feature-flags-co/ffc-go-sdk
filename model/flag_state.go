@@ -1,4 +1,4 @@
-package common
+package model
 
 type FlagState struct {
 	BasicFlagState

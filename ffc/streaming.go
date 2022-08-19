@@ -3,8 +3,8 @@ package ffc
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/feature-flags-co/ffc-go-sdk/common"
 	"github.com/feature-flags-co/ffc-go-sdk/model"
+	"github.com/feature-flags-co/ffc-go-sdk/data"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
 	"log"
@@ -26,7 +26,7 @@ func NewStreaming(config Context, streamingURI string) *Streaming {
 	return &Streaming{
 		BasicConfig:  config.BasicConfig,
 		HttpConfig:   config.HttpConfig,
-		StreamingURL: strings.TrimRight(streamingURI, "/") + common.DefaultStreamingPath,
+		StreamingURL: strings.TrimRight(streamingURI, "/") + model.DefaultStreamingPath,
 	}
 }
 
@@ -39,7 +39,7 @@ func PingOrDataSync(stime *time.Time, msgType string) {
 	} else {
 		timestamp = stime.UnixNano() / 1e6
 	}
-	syncMessage := model.NewDataSyncMessage(timestamp, msgType)
+	syncMessage := data.NewDataSyncMessage(timestamp, msgType)
 	msg, _ := json.Marshal(syncMessage)
 	log.Printf("ping message:%v", string(msg))
 	if sockectConn != nil {
@@ -61,7 +61,7 @@ func (s *Streaming) Connect() {
 	token := utils.BuildToken(envSecret)
 
 	// build wss request url
-	path := fmt.Sprintf(s.StreamingURL+common.AuthParams, token)
+	path := fmt.Sprintf(s.StreamingURL+model.AuthParams, token)
 	log.Printf("connecting: %s", path)
 
 	// build request headers
@@ -72,7 +72,7 @@ func (s *Streaming) Connect() {
 	sockectConn = c
 
 	// send data sync message
-	PingOrDataSync(nil, common.MsgTypeDataSync)
+	PingOrDataSync(nil, model.MsgTypeDataSync)
 
 	if err != nil {
 		log.Fatal("dial error=", err, " rsp=", rsp)
@@ -94,7 +94,7 @@ func (s *Streaming) Connect() {
 		}
 	}()
 
-	ticker := time.NewTicker(common.PingInterval)
+	ticker := time.NewTicker(model.PingInterval)
 	defer ticker.Stop()
 
 	for {
@@ -105,8 +105,8 @@ func (s *Streaming) Connect() {
 
 			// send ping message to websocket server
 			log.Printf("send ping msg %v", t)
-			PingOrDataSync(&t, common.MsgTypePing)
-			PingOrDataSync(&t, common.MsgTypeDataSync)
+			PingOrDataSync(&t, model.MsgTypePing)
+			PingOrDataSync(&t, model.MsgTypeDataSync)
 		case <-interrupt:
 			log.Println("interrupt")
 
@@ -127,21 +127,21 @@ func (s *Streaming) Connect() {
 
 }
 
-func processDateAsync(all model.All) bool {
+func processDateAsync(all data.All) bool {
 
 	eventType := all.EventType
 	version := all.Timestamp
 	dataMap := all.ToStorageType()
 
 	// init all data to data storage map
-	if common.EventTypeFullOps == eventType {
-		model.GetDataStorage().Initialization(dataMap, version)
-	} else if common.EventTypePatchOps == eventType {
+	if model.EventTypeFullOps == eventType {
+		data.GetDataStorage().Initialization(dataMap, version)
+	} else if model.EventTypePatchOps == eventType {
 
 		// update part data to data storage
 		for k, v := range dataMap {
 			for k1, v1 := range v {
-				model.GetDataStorage().Upsert(k, k1, v1, version)
+				data.GetDataStorage().Upsert(k, k1, v1, version)
 			}
 		}
 	}
@@ -151,7 +151,7 @@ func processDateAsync(all model.All) bool {
 // ProcessMessage receive message from web socket and convert to all object.
 // @Param message the data receive from socket
 func ProcessMessage(message string) {
-	var msgModel model.StreamingMessage
+	var msgModel data.StreamingMessage
 	err := json.Unmarshal([]byte(message), &msgModel)
 	if err != nil {
 		log.Fatalf("process message to StreamingMessage object error, error = %v", err)
@@ -159,8 +159,8 @@ func ProcessMessage(message string) {
 	}
 
 	// process data sync message
-	if common.MsgTypeDataSync == msgModel.MessageType {
-		var all model.All
+	if model.MsgTypeDataSync == msgModel.MessageType {
+		var all data.All
 		err = json.Unmarshal([]byte(message), &all)
 		if err != nil {
 			log.Fatalf("process message to All object error, error = %v", err)

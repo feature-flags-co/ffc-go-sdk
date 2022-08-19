@@ -2,35 +2,37 @@ package ffc
 
 import (
 	"encoding/json"
-	"github.com/feature-flags-co/ffc-go-sdk/common"
+	"github.com/feature-flags-co/ffc-go-sdk/data"
 	"github.com/feature-flags-co/ffc-go-sdk/model"
+	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"log"
+	"regexp"
 	"strings"
 )
 
 type Evaluator struct {
-	FeatureFlag model.FeatureFlag
-	Segment     model.Segment
+	FeatureFlag data.FeatureFlag
+	Segment     data.Segment
 }
 
-func NewEvaluator(featureFlag model.FeatureFlag, segment model.Segment) Evaluator {
+func NewEvaluator(featureFlag data.FeatureFlag, segment data.Segment) Evaluator {
 	return Evaluator{
 		FeatureFlag: featureFlag,
 		Segment:     segment,
 	}
 }
 
-func (e *Evaluator) Evaluate(flag model.FeatureFlag, user common.FFCUser, event model.Event) *model.EvalResult {
+func (e *Evaluator) Evaluate(flag data.FeatureFlag, user model.FFCUser, event data.Event) *data.EvalResult {
 	if len(user.UserName) == 0 || len(flag.Id) == 0 {
 		return nil
 	}
 	return matchUserVariation(flag, user, event)
 }
 
-func matchUserVariation(flag model.FeatureFlag, user common.FFCUser, event model.Event) *model.EvalResult {
+func matchUserVariation(flag data.FeatureFlag, user model.FFCUser, event data.Event) *data.EvalResult {
 
 	// return a value when flag is off or not match prerequisite rule
-	var er *model.EvalResult
+	var er *data.EvalResult
 	er = matchFeatureFlagDisabledUserVariation(flag, user, event)
 	if er != nil {
 		return er
@@ -57,39 +59,39 @@ func matchUserVariation(flag model.FeatureFlag, user common.FFCUser, event model
 		if er == nil {
 			log.Printf("FFC GO SDK:user %v Feature Flag %v, Flag Value %v", user.Key, flag.Info.KeyName, er.Value)
 			if event != nil {
-				event.Add(model.OfFlagEventVariation(flag.Info.KeyName, er))
+				event.Add(data.OfFlagEventVariation(flag.Info.KeyName, er))
 			}
 		}
 	}()
 	return er
 }
 
-func matchDefaultUserVariation(flag model.FeatureFlag, user common.FFCUser) *model.EvalResult {
+func matchDefaultUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 
 	return nil
 }
 
-func matchConditionedUserVariation(flag model.FeatureFlag, user common.FFCUser) *model.EvalResult {
+func matchConditionedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 	return nil
 
 }
-func matchTargetedUserVariation(flag model.FeatureFlag, user common.FFCUser) *model.EvalResult {
+func matchTargetedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 	return nil
 
 }
-func matchFeatureFlagDisabledUserVariation(flag model.FeatureFlag, user common.FFCUser, event model.Event) *model.EvalResult {
+func matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag, user model.FFCUser, event data.Event) *data.EvalResult {
 
 	return nil
 }
 
-func equalsClause(user common.FFCUser, clause model.RuleItem) bool {
+func equalsClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	pv := user.GetProperty(clause.Property)
 	value := clause.Value
 	return len(pv) > 0 && pv == value
 }
 
-func containsClause(user common.FFCUser, clause model.RuleItem) bool {
+func containsClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	pv := user.GetProperty(clause.Property)
 	value := clause.Value
@@ -97,7 +99,7 @@ func containsClause(user common.FFCUser, clause model.RuleItem) bool {
 
 }
 
-func oneOfClause(user common.FFCUser, clause model.RuleItem) bool {
+func oneOfClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	pv := user.GetProperty(clause.Property)
 	var values []string
@@ -116,27 +118,27 @@ func oneOfClause(user common.FFCUser, clause model.RuleItem) bool {
 	}
 	return false
 }
-func startsWithClause(user common.FFCUser, clause model.RuleItem) bool {
+func startsWithClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	pv := user.GetProperty(clause.Property)
 	value := clause.Value
 	return len(pv) > 0 && strings.HasPrefix(pv, value)
 }
 
-func endsWithClause(user common.FFCUser, clause model.RuleItem) bool {
+func endsWithClause(user model.FFCUser, clause data.RuleItem) bool {
 	pv := user.GetProperty(clause.Property)
 	value := clause.Value
 	return len(pv) > 0 && strings.HasSuffix(pv, value)
 
 }
-func trueClause(user common.FFCUser, clause model.RuleItem) bool {
+func trueClause(user model.FFCUser, clause data.RuleItem) bool {
 	pv := user.GetProperty(clause.Property)
 	if len(pv) > 0 && strings.ToLower(pv) == "true" {
 		return true
 	}
 	return false
 }
-func falseClause(user common.FFCUser, clause model.RuleItem) bool {
+func falseClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	pv := user.GetProperty(clause.Property)
 	if len(pv) > 0 && strings.ToLower(pv) == "false" {
@@ -145,29 +147,81 @@ func falseClause(user common.FFCUser, clause model.RuleItem) bool {
 	return false
 }
 
-func matchRegExClause(user common.FFCUser, clause model.RuleItem) bool {
+func matchRegExClause(user model.FFCUser, clause data.RuleItem) bool {
 
-	// TODO
-	return false
+	pv := user.GetProperty(clause.Property)
+	value := clause.Value
+	reg, _ := regexp.Compile(value)
+	ret := reg.Match([]byte(pv))
+	return ret
 }
 
-func inSegmentClause(user common.FFCUser, clause model.RuleItem) bool {
+func (e *Evaluator) inSegmentClause(user model.FFCUser, clause data.RuleItem) bool {
 
-	// TODO
+	pv := user.Key
+	var lists []string
+	err := json.Unmarshal([]byte(clause.Value), &lists)
+	if err != nil {
+		log.Printf("inSegmentClause to json error, error = %v", err)
+		return false
+	}
+
+	for _, v := range lists {
+		item := data.GetDataStorage().Get(data.SegmentsCat, v)
+		if item == (data.Item{}) {
+			return false
+		}
+		seg := item.Item.(*data.Segment)
+		ret := seg.IsMatchUser(pv)
+		if ret == nil {
+			rules := seg.Rules
+			for _, r := range rules {
+				temp := e.ifUserMatchRule(user, r.RuleJsonContent)
+				if temp {
+					return true
+				}
+			}
+		} else {
+			return ret.Value
+		}
+	}
 	return false
 }
+func thanClause(user model.FFCUser, clause data.RuleItem) bool {
 
-func thanClause(user common.FFCUser, clause model.RuleItem) bool {
+	pv := user.GetProperty(clause.Property)
+	value := clause.Value
 
-	//pv := user.GetProperty(clause.Property)
-	//clauseValue := clause.Value
+	pvf := utils.GetFloat64(pv)
+	valuef := utils.GetFloat64(value)
+	switch clause.Operation {
+	case model.EvaGeClause:
+		return pvf >= valuef
+	case model.EvaGtClause:
+		return pvf > valuef
+	case model.EvaLeClause:
+		return pvf <= valuef
+	case model.EvaLtClause:
+		return pvf < valuef
+	default:
+		return false
 
-	// TODO
-
-	return false
+	}
 }
 
-func ifUserMatchClause(user common.FFCUser, clause model.RuleItem) bool {
+func (e *Evaluator) ifUserMatchRule(user model.FFCUser, clauses []data.RuleItem) bool {
+
+	for _, v := range clauses {
+
+		ret := e.ifUserMatchClause(user, v)
+		if !ret {
+			return false
+		}
+	}
+	return true
+
+}
+func (e *Evaluator) ifUserMatchClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	var op string
 	op = clause.Operation
@@ -176,59 +230,59 @@ func ifUserMatchClause(user common.FFCUser, clause model.RuleItem) bool {
 		op = clause.Property
 	}
 
-	if strings.Contains(op, common.EvaThanClause) {
+	if strings.Contains(op, model.EvaThanClause) {
 		return thanClause(user, clause)
 	}
-	if strings.Contains(op, common.EvaEqClause) {
+	if strings.Contains(op, model.EvaEqClause) {
 		return equalsClause(user, clause)
 	}
-	if strings.Contains(op, common.EvaNeqClause) {
+	if strings.Contains(op, model.EvaNeqClause) {
 		return !equalsClause(user, clause)
 	}
-	if strings.Contains(op, common.EvaContainsClause) {
+	if strings.Contains(op, model.EvaContainsClause) {
 		return containsClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaNotContainClause) {
+	if strings.Contains(op, model.EvaNotContainClause) {
 		return !containsClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaIsOneOfClause) {
+	if strings.Contains(op, model.EvaIsOneOfClause) {
 		return oneOfClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaNotOneOfClause) {
+	if strings.Contains(op, model.EvaNotOneOfClause) {
 		return !oneOfClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaStartsWithClause) {
+	if strings.Contains(op, model.EvaStartsWithClause) {
 		return startsWithClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaEndsWithClause) {
+	if strings.Contains(op, model.EvaEndsWithClause) {
 		return endsWithClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaIsTrueClause) {
+	if strings.Contains(op, model.EvaIsTrueClause) {
 		return trueClause(user, clause)
 	}
-	if strings.Contains(op, common.EvaIsFalseClause) {
+	if strings.Contains(op, model.EvaIsFalseClause) {
 		return falseClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaMatchRegexClause) {
+	if strings.Contains(op, model.EvaMatchRegexClause) {
 		return matchRegExClause(user, clause)
 	}
-	if strings.Contains(op, common.EvaNotMatchRegexClause) {
+	if strings.Contains(op, model.EvaNotMatchRegexClause) {
 		return !matchRegExClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaIsInSegmentClause) {
-		return inSegmentClause(user, clause)
+	if strings.Contains(op, model.EvaIsInSegmentClause) {
+		return e.inSegmentClause(user, clause)
 	}
 
-	if strings.Contains(op, common.EvaNotInSegmentClause) {
-		return !inSegmentClause(user, clause)
+	if strings.Contains(op, model.EvaNotInSegmentClause) {
+		return !e.inSegmentClause(user, clause)
 	}
 	return false
 }
