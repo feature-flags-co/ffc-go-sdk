@@ -198,6 +198,8 @@ type VariationOptionPercentageRollout struct {
 	RolloutPercentage []float64       `json:"rolloutPercentage"`
 	ValueOption       VariationOption `json:"valueOption"`
 }
+
+
 type VariationOption struct {
 	LocalId        int64  `json:"localId"`
 	DisplayOrder   int64  `json:"displayOrder"`

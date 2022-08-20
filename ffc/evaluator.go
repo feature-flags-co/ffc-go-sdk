@@ -33,13 +33,13 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 
 	// return a value when flag is off or not match prerequisite rule
 	var er *data.EvalResult
-	er = matchFeatureFlagDisabledUserVariation(flag, user, event)
+	er = e.matchFeatureFlagDisabledUserVariation(flag, user, event)
 	if er != nil {
 		return er
 	}
 
 	//return the value of target user
-	er = matchTargetedUserVariation(flag, user)
+	er = e.matchTargetedUserVariation(flag, user)
 	if er != nil {
 		return er
 	}
@@ -50,7 +50,7 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 		return er
 	}
 	//get value from default rule
-	er = matchDefaultUserVariation(flag, user)
+	er = e.matchDefaultUserVariation(flag, user)
 	if er != nil {
 		return er
 	}
@@ -66,7 +66,7 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 	return er
 }
 
-func matchDefaultUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
+func (e *Evaluator) matchDefaultUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 
 	return nil
 }
@@ -121,10 +121,21 @@ func getRollOutVariationOption(rollouts []data.VariationOptionPercentageRollout,
 func isSendToExperiment(userKey string, out data.VariationOptionPercentageRollout, exptIncludeAllRules bool,
 	ruleIncludedInExperiment bool) bool {
 
-	// TODO
-	return false
+	sendToExperimentPercentage := out.ExptRollout
+	splittingPercentage := out.RolloutPercentage[1] - out.RolloutPercentage[0]
+	if sendToExperimentPercentage == 0 || splittingPercentage == 0 {
+		return false
+	}
+
+	upperBound := sendToExperimentPercentage / splittingPercentage
+	if upperBound > 1 {
+		upperBound = 1
+	}
+	rangs := []float64{0, upperBound}
+	return utils.IfKeyBelongsPercentage(userKey, rangs)
 }
-func matchTargetedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
+
+func (e *Evaluator) matchTargetedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 
 	targets := flag.Targets
 	if len(targets) == 0 {
@@ -145,21 +156,41 @@ func matchTargetedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data
 	return &ret
 
 }
-func matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag, user model.FFCUser,
+func (e *Evaluator) matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag, user model.FFCUser,
 	event data.Event) *data.EvalResult {
 
 	if flag.Info.Status == model.EvaFlagDisableStats {
-
 		ret := data.NewEvalResultWithOption(flag.Info.VariationOptionWhenDisabled,
 			model.EvaReasonFlagOff,
 			false,
 			flag.Info.KeyName,
 			flag.Info.Name)
-
 		return &ret
 	}
 
-	return nil
+	visites := flag.Prerequisites
+	var ffp data.FeatureFlagPrerequisite
+	for _, v := range visites {
+		preFlagId := v.PrerequisiteFeatureFlagId
+		if preFlagId != flag.Info.Id {
+			item := data.GetDataStorage().Get(data.FeaturesCat, preFlagId)
+			if len(item.Item.GetId()) > 0 {
+
+				er := e.matchUserVariation(item.Item.(data.FeatureFlag), user, event)
+				if utils.GetString(er.Index) != v.ValueOptionsVariationValue.VariationValue {
+					ffp = v
+					break
+				}
+			}
+		}
+	}
+	log.Printf("ffp = %v", ffp)
+	ret := data.NewEvalResultWithOption(flag.Info.VariationOptionWhenDisabled,
+		model.EvaReasonPrerequisiteFailed,
+		false,
+		flag.Info.KeyName,
+		flag.Info.Name)
+	return &ret
 }
 
 func equalsClause(user model.FFCUser, clause data.RuleItem) bool {
