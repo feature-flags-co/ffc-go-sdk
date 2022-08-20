@@ -40,7 +40,11 @@ func websocket() {
 
 }
 func main() {
-	websocket()
+	//websocket()
+
+	ret := utils.PercentageOfKey("a")
+	fmt.Println(ret)
 	fmt.Print(utils.BuildToken("ad2sdfad="))
-	select {}
+
+	//select {}
 }

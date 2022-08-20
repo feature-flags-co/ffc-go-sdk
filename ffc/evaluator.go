@@ -26,10 +26,10 @@ func (e *Evaluator) Evaluate(flag data.FeatureFlag, user model.FFCUser, event da
 	if len(user.UserName) == 0 || len(flag.Id) == 0 {
 		return nil
 	}
-	return matchUserVariation(flag, user, event)
+	return e.matchUserVariation(flag, user, event)
 }
 
-func matchUserVariation(flag data.FeatureFlag, user model.FFCUser, event data.Event) *data.EvalResult {
+func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser, event data.Event) *data.EvalResult {
 
 	// return a value when flag is off or not match prerequisite rule
 	var er *data.EvalResult
@@ -45,7 +45,7 @@ func matchUserVariation(flag data.FeatureFlag, user model.FFCUser, event data.Ev
 	}
 
 	//return the value of matched rule
-	er = matchConditionedUserVariation(flag, user)
+	er = e.matchConditionedUserVariation(flag, user)
 	if er != nil {
 		return er
 	}
@@ -71,15 +71,93 @@ func matchDefaultUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.
 	return nil
 }
 
-func matchConditionedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
-	return nil
+func (e *Evaluator) matchConditionedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 
+	targetRules := flag.Rules
+	var rule data.TargetRule
+	for _, v := range targetRules {
+		if e.ifUserMatchRule(user, v.RuleJsonContent) {
+			rule = v
+			break
+		}
+	}
+	return getRollOutVariationOption(rule.ValueOptionsVariationRuleValues,
+		user,
+		model.EvaReasonRuleMatch,
+		flag.ExptIncludeAllRules,
+		rule.IsIncludedInExpt,
+		flag.Info.KeyName,
+		flag.Info.Name)
+}
+
+func getRollOutVariationOption(rollouts []data.VariationOptionPercentageRollout,
+	user model.FFCUser,
+	reason string,
+	exptIncludeAllRules bool,
+	ruleIncludedInExperiment bool,
+	flagKeyName string,
+	flagName string) *data.EvalResult {
+
+	newUserKey := utils.Base64Encode(user.Key)
+	if len(rollouts) == 0 {
+		return nil
+	}
+	var out data.VariationOptionPercentageRollout
+	for _, v := range rollouts {
+		if utils.IfKeyBelongsPercentage(user.Key, v.RolloutPercentage) {
+			out = v
+			break
+		}
+	}
+	ret := data.NewEvalResultWithOption(out.ValueOption,
+		reason,
+		isSendToExperiment(newUserKey, out, exptIncludeAllRules, ruleIncludedInExperiment),
+		flagKeyName,
+		flagName)
+	return &ret
+
+}
+
+func isSendToExperiment(userKey string, out data.VariationOptionPercentageRollout, exptIncludeAllRules bool,
+	ruleIncludedInExperiment bool) bool {
+
+	// TODO
+	return false
 }
 func matchTargetedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
-	return nil
+
+	targets := flag.Targets
+	if len(targets) == 0 {
+		return nil
+	}
+	var tg data.TargetIndividuals
+	for _, v := range targets {
+		if v.IsTargeted(user.Key) {
+			tg = v
+			break
+		}
+	}
+	ret := data.NewEvalResultWithOption(tg.ValueOption,
+		model.EvaReasonTargetMatch,
+		flag.ExptIncludeAllRules,
+		flag.Info.KeyName,
+		flag.Info.Name)
+	return &ret
 
 }
-func matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag, user model.FFCUser, event data.Event) *data.EvalResult {
+func matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag, user model.FFCUser,
+	event data.Event) *data.EvalResult {
+
+	if flag.Info.Status == model.EvaFlagDisableStats {
+
+		ret := data.NewEvalResultWithOption(flag.Info.VariationOptionWhenDisabled,
+			model.EvaReasonFlagOff,
+			false,
+			flag.Info.KeyName,
+			flag.Info.Name)
+
+		return &ret
+	}
 
 	return nil
 }

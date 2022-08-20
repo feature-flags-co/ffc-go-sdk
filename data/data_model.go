@@ -227,6 +227,19 @@ type TargetIndividuals struct {
 	ValueOption VariationOption                   `json:"valueOption"`
 }
 
+func (t *TargetIndividuals) IsTargeted(userKeyId string) bool {
+
+	if len(t.Individuals) == 0 {
+		return false
+	}
+	for _, v := range t.Individuals {
+		if v.KeyId == userKeyId {
+			return true
+		}
+	}
+	return false
+}
+
 type FeatureFlagTargetIndividualUser struct {
 	Id    string `json:"id"`
 	Name  string `json:"name"`
