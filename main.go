@@ -41,10 +41,18 @@ func websocket() {
 }
 func main() {
 	//websocket()
-
-	ret := utils.PercentageOfKey("a")
+	//
+	ret := utils.PercentageOfKey("test-value")
 	fmt.Println(ret)
 	fmt.Print(utils.BuildToken("ad2sdfad="))
+
+	//
+	//dst := make([]byte, 0)
+	//dst2 := make([]byte, 25, 25)
+	//ascii85.Encode(dst, []byte("test-value"))
+	//fmt.Println(dst)
+	//ascii85.Decode(dst2, dst, false)
+	//fmt.Println(string(dst2))
 
 	//select {}
 }

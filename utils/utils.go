@@ -227,11 +227,11 @@ func (f *StrTo) Set(v string) {
 }
 
 func (f *StrTo) Clear() {
-	*f = StrTo(0x1E)
+	*f = StrTo("0x1E")
 }
 
 func (f StrTo) Exist() bool {
-	return string(f) != string(0x1E)
+	return string(f) != string("0x1E")
 }
 
 func (f StrTo) Bool() (bool, error) {
