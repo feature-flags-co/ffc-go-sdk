@@ -22,8 +22,8 @@ func NewClient(envSecret string, config *Config) Client {
 	stream := NewStreaming(contextConfig, config.StreamingBuilder.StreamingURI)
 	go stream.Connect()
 
-	// TODO init this Evaluator Object
 	var evaluator Evaluator
+	evaluator = NewEvaluator()
 	return Client{
 		Offline:     config.OffLine,
 		Evaluator:   evaluator,

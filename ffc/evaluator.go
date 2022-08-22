@@ -11,14 +11,10 @@ import (
 )
 
 type Evaluator struct {
-	FeatureFlag data.FeatureFlag
-	Segment     data.Segment
 }
 
-func NewEvaluator(featureFlag data.FeatureFlag, segment data.Segment) Evaluator {
+func NewEvaluator() Evaluator {
 	return Evaluator{
-		FeatureFlag: featureFlag,
-		Segment:     segment,
 	}
 }
 
@@ -68,7 +64,13 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 
 func (e *Evaluator) matchDefaultUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
 
-	return nil
+	return getRollOutVariationOption(flag.Info.DefaultRulePercentageRollouts,
+		user,
+		model.EvaReasonFallthrough,
+		flag.ExptIncludeAllRules,
+		flag.Info.IsDefaultRulePercentageRolloutsIncludedInExpt,
+		flag.Info.KeyName,
+		flag.Info.Name)
 }
 
 func (e *Evaluator) matchConditionedUserVariation(flag data.FeatureFlag, user model.FFCUser) *data.EvalResult {
@@ -168,9 +170,9 @@ func (e *Evaluator) matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag,
 		return &ret
 	}
 
-	visites := flag.Prerequisites
+	visits := flag.Prerequisites
 	var ffp data.FeatureFlagPrerequisite
-	for _, v := range visites {
+	for _, v := range visits {
 		preFlagId := v.PrerequisiteFeatureFlagId
 		if preFlagId != flag.Info.Id {
 			item := data.GetDataStorage().Get(data.FeaturesCat, preFlagId)
