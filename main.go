@@ -4,7 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/feature-flags-co/ffc-go-sdk/ffc"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
+	"io"
 	"log"
 	"net/http"
 )
@@ -24,6 +26,8 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "home.html")
 }
 
+var client ffc.Client
+
 func websocket() {
 	envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
 	streamingBuilder := ffc.NewStreamingBuilder().NewStreamingURI("wss://api-dev.featureflag.co")
@@ -32,27 +36,34 @@ func websocket() {
 		SetOffline(false).
 		UpdateProcessorFactory(streamingBuilder).
 		Build()
-	client := ffc.NewClient(envSecret, config)
-
+	client = ffc.NewClient(envSecret, config)
 	fmt.Println(client)
-	tags := client.GetAllUserTags()
-	fmt.Println(tags)
 
 }
 func main() {
-	//websocket()
-	//
-	ret := utils.PercentageOfKey("test-value")
-	fmt.Println(ret)
+	websocket()
 	fmt.Print(utils.BuildToken("ad2sdfad="))
+	httpServer()
 
-	//
-	//dst := make([]byte, 0)
-	//dst2 := make([]byte, 25, 25)
-	//ascii85.Encode(dst, []byte("test-value"))
-	//fmt.Println(dst)
-	//ascii85.Decode(dst2, dst, false)
-	//fmt.Println(string(dst2))
+}
 
-	//select {}
+func httpServer() {
+	http.HandleFunc("/health", health)
+
+	http.HandleFunc("/index", index)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func index(w http.ResponseWriter, request *http.Request) {
+	user := model.FFCUser{
+		UserName: "test",
+	}
+	client.IntVariationWithUser("featureD", user, 0)
+}
+
+func health(w http.ResponseWriter, request *http.Request) {
+	io.WriteString(w, "ok")
 }

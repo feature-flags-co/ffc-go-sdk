@@ -23,7 +23,7 @@ func NewClient(envSecret string, config *Config) Client {
 	go stream.Connect()
 
 	var evaluator Evaluator
-	evaluator = NewEvaluator()
+	evaluator = NewEvaluator(data.GetDataStorage())
 	return Client{
 		Offline:     config.OffLine,
 		Evaluator:   evaluator,
@@ -274,7 +274,7 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 
 	if checkType {
 		log.Printf("FFC GO SDK:evaluation result %s didn't matched expected type ", evaResult.Value)
-		data.ErrorWithDefaultValue(defaultValue.(string),
+		data.ErrorWithDefaultValue(utils.GetString(defaultValue),
 			model.EvaReasonWrongType,
 			evaResult.KeyName,
 			evaResult.Name)

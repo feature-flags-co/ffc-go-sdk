@@ -99,23 +99,23 @@ type Segment struct {
 	Rules      []TargetRule `json:"rules"`
 }
 
-func (s *Segment) GetId() string {
+func (s Segment) GetId() string {
 	return s.Id
 }
 
-func (s *Segment) Archived() bool {
+func (s Segment) Archived() bool {
 	return s.IsArchived
 }
 
-func (s *Segment) GetTimestamp() int64 {
+func (s Segment) GetTimestamp() int64 {
 	return s.Timestamp
 }
 
-func (s *Segment) GetType() int {
+func (s Segment) GetType() int {
 	return model.FFCSegment
 }
 
-func (s *Segment) ToArchivedTimestampData() TimestampData {
+func (s Segment) ToArchivedTimestampData() TimestampData {
 
 	adata := ArchivedTimestampData{
 		Id:         s.Id,
@@ -155,23 +155,23 @@ type TimestampUserTag struct {
 	Timestamp  int64  `json:"timestamp"`
 }
 
-func (t *TimestampUserTag) GetId() string {
+func (t TimestampUserTag) GetId() string {
 	return t.Id
 }
 
-func (t *TimestampUserTag) Archived() bool {
+func (t TimestampUserTag) Archived() bool {
 	return t.IsArchived
 }
 
-func (t *TimestampUserTag) GetTimestamp() int64 {
+func (t TimestampUserTag) GetTimestamp() int64 {
 	return t.Timestamp
 }
 
-func (t *TimestampUserTag) GetType() int {
+func (t TimestampUserTag) GetType() int {
 	return model.FFCSegment
 }
 
-func (t *TimestampUserTag) ToArchivedTimestampData() TimestampData {
+func (t TimestampUserTag) ToArchivedTimestampData() TimestampData {
 
 	aData := ArchivedTimestampData{
 		Id:         t.Id,
@@ -198,7 +198,6 @@ type VariationOptionPercentageRollout struct {
 	RolloutPercentage []float64       `json:"rolloutPercentage"`
 	ValueOption       VariationOption `json:"valueOption"`
 }
-
 
 type VariationOption struct {
 	LocalId        int64  `json:"localId"`
@@ -268,7 +267,7 @@ func (d *Data) ToStorageType() map[Category]map[string]Item {
 			if v.IsArchived {
 				timestampData = v.ToArchivedTimestampData()
 			} else {
-				timestampData = &v
+				timestampData = v
 			}
 			item := Item{
 				Item: timestampData,
@@ -288,7 +287,7 @@ func (d *Data) ToStorageType() map[Category]map[string]Item {
 			if v.IsArchived {
 				timestampData = v.ToArchivedTimestampData()
 			} else {
-				timestampData = &v
+				timestampData = v
 			}
 			item := Item{
 				Item: timestampData,
@@ -306,7 +305,7 @@ func (d *Data) ToStorageType() map[Category]map[string]Item {
 			if v.IsArchived {
 				timestampData = v.ToArchivedTimestampData()
 			} else {
-				timestampData = &v
+				timestampData = v
 			}
 			item := Item{
 				Item: timestampData,

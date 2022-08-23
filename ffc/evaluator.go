@@ -11,10 +11,12 @@ import (
 )
 
 type Evaluator struct {
+	dataStorage data.DataStorage
 }
 
-func NewEvaluator() Evaluator {
+func NewEvaluator(dataStorage data.DataStorage) Evaluator {
 	return Evaluator{
+		dataStorage: dataStorage,
 	}
 }
 
@@ -175,7 +177,7 @@ func (e *Evaluator) matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag,
 	for _, v := range visits {
 		preFlagId := v.PrerequisiteFeatureFlagId
 		if preFlagId != flag.Info.Id {
-			item := data.GetDataStorage().Get(data.FeaturesCat, preFlagId)
+			item := e.dataStorage.Get(data.FeaturesCat, preFlagId)
 			if len(item.Item.GetId()) > 0 {
 
 				er := e.matchUserVariation(item.Item.(data.FeatureFlag), user, event)
@@ -278,7 +280,7 @@ func (e *Evaluator) inSegmentClause(user model.FFCUser, clause data.RuleItem) bo
 	}
 
 	for _, v := range lists {
-		item := data.GetDataStorage().Get(data.SegmentsCat, v)
+		item := e.dataStorage.Get(data.SegmentsCat, v)
 		if item == (data.Item{}) {
 			return false
 		}
