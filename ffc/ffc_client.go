@@ -192,6 +192,20 @@ func (c *Client) IsFlagKnown(featureFlagKey string) bool {
 	return len(flag.Id) == 0
 }
 
+// GetAllUserTags return a list of user tags used to instantiate a {@link FFCUser}
+// @Return a list of user tags
+func (c *Client) GetAllUserTags() []model.UserTag {
+
+	userTags := make([]model.UserTag, 0)
+	if c.IsInitialized() {
+		items := c.dataStorage.GetAll(data.UserTagsCat)
+		for _, v := range items {
+			userTags = append(userTags, v.Item.(data.TimestampUserTag).UserTag)
+		}
+	}
+	return userTags
+}
+
 // InitializeFromExternalJson initialization in the offline mode
 // @Param featureFlagKey the unique key for the feature flag
 func (c *Client) InitializeFromExternalJson(featureFlagKey string) {
@@ -205,20 +219,6 @@ func (c *Client) InitializeFromExternalJson(featureFlagKey string) {
 func (c *Client) GetAllLatestFlagsVariations(user model.FFCUser) []model.AllFlagState {
 	stats := make([]model.AllFlagState, 0)
 	return stats
-}
-
-// GetAllUserTags return a list of user tags used to instantiate a {@link FFCUser}
-// @Return a list of user tags
-func (c *Client) GetAllUserTags() []model.UserTag {
-
-	userTags := make([]model.UserTag, 0)
-	if c.IsInitialized() {
-		items := c.dataStorage.GetAll(data.UserTagsCat)
-		for _, v := range items {
-			userTags = append(userTags, v.Item.(data.TimestampUserTag).UserTag)
-		}
-	}
-	return userTags
 }
 
 // Flush  Flushes all pending events.
