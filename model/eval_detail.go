@@ -15,16 +15,16 @@ type EvalDetail struct {
 	KeyName   string
 }
 
-// Of  build method, this method is only for internal use
+// OfEvalDetail build method, this method is only for internal use
 // @Param variation
 // @Param id
 // @Param reason
 // @Param keyName
 // @Param name
 // @Return  an EvalDetail
-func (e *EvalDetail) Of(variation interface{}, id int64, reason string, keyName string, name string) EvalDetail {
+func OfEvalDetail(variation interface{}, id int64, reason string, keyName string, name string) *EvalDetail {
 
-	return EvalDetail{
+	return &EvalDetail{
 		Variation: variation,
 		Id:        id,
 		Reason:    reason,
@@ -59,7 +59,7 @@ func (e *EvalDetail) jsonfy(evalDetail EvalDetail) string {
 }
 
 // ToFlagState get FlagState from EvalDetail
-func (e *EvalDetail) ToFlagState() *FlagState {
+func (e *EvalDetail) ToFlagState() FlagState {
 	return OfFlagState(e)
 
 }

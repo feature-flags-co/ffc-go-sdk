@@ -10,9 +10,9 @@ type FlagState struct {
 // @param message  the reason without flag value
 // @param data  a flag value with reason
 // @Return a FlagState
-func newFlagState(success bool, message string, date *EvalDetail) *FlagState {
+func newFlagState(success bool, message string, date *EvalDetail) FlagState {
 
-	return &FlagState{
+	return FlagState{
 		BasicFlagState: BasicFlagState{
 			Message: message,
 			Success: success,
@@ -24,7 +24,7 @@ func newFlagState(success bool, message string, date *EvalDetail) *FlagState {
 // OfFlagState build a good flag stat
 // @param data  a flag value with reason
 // @Return a FlagState
-func OfFlagState(data *EvalDetail) *FlagState {
+func OfFlagState(data *EvalDetail) FlagState {
 	var reason string
 	if data.IsSuccess() {
 		reason = "OK"
@@ -37,6 +37,6 @@ func OfFlagState(data *EvalDetail) *FlagState {
 // Empty build a flag state without flag value
 // @Param message the reason without flag value
 // @Return a FlagState
-func Empty(message string) *FlagState {
+func Empty(message string) FlagState {
 	return newFlagState(false, message, nil)
 }
