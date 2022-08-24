@@ -295,6 +295,7 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 			featureFlagKey,
 			model.EvaFlagNameUnknown)
 	}
+
 	featureFlag := c.getFlagInternal(featureFlagKey)
 	if len(featureFlag.Id) == 0 {
 		log.Printf("FFC GO SDK:unknown feature flag %s; returning default value", featureFlagKey)
