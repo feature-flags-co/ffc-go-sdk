@@ -61,7 +61,7 @@ func index(w http.ResponseWriter, request *http.Request) {
 	user := model.FFCUser{
 		UserName: "test",
 	}
-	client.IntVariationWithUser("featureD", user, 0)
+	client.IntVariation("featureD", user, 0)
 }
 
 func health(w http.ResponseWriter, request *http.Request) {
