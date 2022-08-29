@@ -131,6 +131,7 @@ func isSendToExperiment(userKey string, out data.VariationOptionPercentageRollou
 		return false
 	}
 
+
 	upperBound := sendToExperimentPercentage / splittingPercentage
 	if upperBound > 1 {
 		upperBound = 1

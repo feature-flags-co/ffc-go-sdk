@@ -2,6 +2,13 @@ package model
 
 import "strings"
 
+const (
+	Name    = "name"
+	KeyId   = "keyid"
+	Country = "country"
+	Email   = "email"
+)
+
 // FFCUser A collection of attributes that can affect flag evaluation, usually corresponding to a user of your application.
 // The only mandatory property is the key, which must uniquely identify each user;
 // this could be a username or email address for authenticated users, or a ID for anonymous users.
@@ -39,16 +46,16 @@ func (f *FFCUser) Of(tags map[UserTag]string) FFCUser {
 		tagLower := strings.ToLower(tag.UserProperty)
 		switch tagLower {
 
-		case "keyid":
+		case KeyId:
 			fb.Key(value)
 			continue
-		case "name":
+		case Name:
 			fb.UserName(value)
 			continue
-		case "email":
+		case Email:
 			fb.Email(value)
 			continue
-		case "country":
+		case Country:
 			fb.Country(value)
 			continue
 		default:
@@ -70,6 +77,22 @@ func (f *FFCUser) Of(tags map[UserTag]string) FFCUser {
 // @Param attribute – the attribute to get
 // @Return the attribute value or nil
 func (f *FFCUser) GetProperty(attribute string) string {
+
+	if strings.ToLower(attribute) == Name {
+		return f.UserName
+	}
+
+	if strings.ToLower(attribute) == Email {
+		return f.Email
+	}
+
+	if strings.ToLower(attribute) == KeyId {
+		return f.Key
+	}
+
+	if strings.ToLower(attribute) == Country {
+		return f.Country
+	}
 	return f.Custom[attribute]
 }
 
