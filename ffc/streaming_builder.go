@@ -1,6 +1,9 @@
 package ffc
 
-import "time"
+import (
+	"github.com/feature-flags-co/ffc-go-sdk/model"
+	"time"
+)
 
 type StreamingBuilder struct {
 	StreamingURI    string
@@ -12,6 +15,11 @@ func NewStreamingBuilder() *StreamingBuilder {
 	builder := StreamingBuilder{
 	}
 	return &builder
+}
+
+func (s *StreamingBuilder) NewDefaultStreamingURI() *StreamingBuilder {
+	s.StreamingURI = model.ConfigDefaultBaseUri
+	return s
 }
 
 func (s *StreamingBuilder) NewStreamingURI(uri string) *StreamingBuilder {

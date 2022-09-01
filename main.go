@@ -39,6 +39,14 @@ func websocket() {
 	client = ffc.NewClient(envSecret, config)
 	fmt.Println(client)
 
+	//ffcUser := model.NewFFUserBuilder().
+	//	UserName("userName").
+	//	Country("country").
+	//	Email("email").
+	//	Custom("key", "value").Build()
+	//
+	//flagtStatue := client.VariationDetail("featureFlagKey", ffcUser, "defaultValue")
+	//userTags := client.GetAllLatestFlagsVariations(ffcUser)
 }
 func main() {
 	websocket()

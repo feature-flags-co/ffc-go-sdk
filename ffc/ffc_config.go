@@ -6,15 +6,12 @@ import (
 )
 
 const (
-	ConfigDefaultBaseUri        = "https://api.featureflag.co"
-	ConfigDefaultEventsUri      = "https://api.featureflag.co"
 	ConfigDefaultStartWaitTime  = time.Duration(time.Second)
 	HttpConfigDefaultConnTime   = time.Duration(time.Second * 10)
 	HttpConfigDefaultSocketTime = time.Duration(time.Second * 15)
 )
 
-
-func init()  {
+func init() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds | log.Ldate)
 }
 
@@ -65,15 +62,23 @@ type ConfigBuilder struct {
 }
 
 func (c *ConfigBuilder) Build() *Config {
+
+	var streamingBuilder *StreamingBuilder
+	if c.StreamingBuilder == nil {
+		streamingBuilder = NewStreamingBuilder().NewDefaultStreamingURI()
+	} else {
+		streamingBuilder = c.StreamingBuilder
+	}
 	ffcConfig := Config{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
 			SocketTime:  HttpConfigDefaultSocketTime,
 		},
-		StreamingBuilder: c.StreamingBuilder,
+		StreamingBuilder: streamingBuilder,
 	}
 	return &ffcConfig
 }
+
 
 func (c *ConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *ConfigBuilder {
 	c.StreamingBuilder = streamingBuilder

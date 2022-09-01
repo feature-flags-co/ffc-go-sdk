@@ -61,4 +61,8 @@ const (
 	EvaNotInSegmentClause       = "User is not in segment"
 	EvaFlagDisableStats         = "Disabled"
 	EvaFlagEnableStats          = "Enabled"
+
+	ConfigDefaultWssUri    = "wss://api.featureflag.co"
+	ConfigDefaultBaseUri   = "https://api.featureflag.co"
+	ConfigDefaultEventsUri = "https://api.featureflag.co"
 )
