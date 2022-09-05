@@ -15,7 +15,6 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.Lmicroseconds | log.Ldate)
 }
 
-var ffcConfig *Config
 var ffcConfigBuilder *ConfigBuilder
 
 type HttpConfig struct {
@@ -36,16 +35,26 @@ type BasicConfig struct {
 	OffLine   bool
 }
 
-func DefaultFFCConfig() *Config {
-	if ffcConfig != nil {
-		return ffcConfig
+func newFFCConfig(builder *ConfigBuilder) *Config {
+
+	var streamingBuilder *StreamingBuilder
+	if builder.StreamingBuilder == nil {
+		streamingBuilder = NewStreamingBuilder().NewDefaultStreamingURI()
 	} else {
-		ffb := ConfigBuilder{}
-		return ffb.Build()
+		streamingBuilder = builder.StreamingBuilder
 	}
+	ffcConfig := Config{
+		HttpConfig: HttpConfig{
+			ConnectTime: HttpConfigDefaultConnTime,
+			SocketTime:  HttpConfigDefaultSocketTime,
+		},
+		StreamingBuilder: streamingBuilder,
+		StartWaitTime:    builder.StartWaitTime,
+	}
+	return &ffcConfig
 }
 
-func DefaultFFCConfigBuilder() *ConfigBuilder {
+func NewConfigBuilder() *ConfigBuilder {
 	if ffcConfigBuilder != nil {
 		return ffcConfigBuilder
 	} else {
@@ -62,23 +71,8 @@ type ConfigBuilder struct {
 }
 
 func (c *ConfigBuilder) Build() *Config {
-
-	var streamingBuilder *StreamingBuilder
-	if c.StreamingBuilder == nil {
-		streamingBuilder = NewStreamingBuilder().NewDefaultStreamingURI()
-	} else {
-		streamingBuilder = c.StreamingBuilder
-	}
-	ffcConfig := Config{
-		HttpConfig: HttpConfig{
-			ConnectTime: HttpConfigDefaultConnTime,
-			SocketTime:  HttpConfigDefaultSocketTime,
-		},
-		StreamingBuilder: streamingBuilder,
-	}
-	return &ffcConfig
+	return newFFCConfig(c)
 }
-
 
 func (c *ConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *ConfigBuilder {
 	c.StreamingBuilder = streamingBuilder
@@ -91,5 +85,10 @@ func (c *ConfigBuilder) insightProcessorFactory() *ConfigBuilder {
 
 func (c *ConfigBuilder) SetOffline(offline bool) *ConfigBuilder {
 	c.Offline = offline
+	return c
+}
+
+func (c *ConfigBuilder) SetStartWaitTime(startWaitTime time.Duration) *ConfigBuilder {
+	c.StartWaitTime = startWaitTime
 	return c
 }

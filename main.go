@@ -32,7 +32,7 @@ func websocket() {
 	envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
 	streamingBuilder := ffc.NewStreamingBuilder().NewStreamingURI("wss://api-dev.featureflag.co")
 
-	config := ffc.DefaultFFCConfigBuilder().
+	config := ffc.NewConfigBuilder().
 		SetOffline(false).
 		UpdateProcessorFactory(streamingBuilder).
 		Build()

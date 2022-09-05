@@ -103,7 +103,7 @@ The `userName` is used to search your user quickly. All other built-in propertie
     
     // be sure that SDK is initialized
     // this is not required
-    if(client.isInitialized()){
+    if(client.IsInitialized()){
         // Evaluation details
        flagtStatue :=client.VariationDetail("featureFlagKey",ffcUser,"defaultValue")
         // Flag value
