@@ -12,9 +12,19 @@ type StreamingBuilder struct {
 }
 
 func NewStreamingBuilder() *StreamingBuilder {
-	builder := StreamingBuilder{
-	}
+	builder := StreamingBuilder{}
 	return &builder
+}
+
+func (s *StreamingBuilder) CreateUpdateProcessor(context Context) UpdateProcessor {
+
+	// set default StreamingURI
+	if len(s.StreamingURI) == 0 {
+		s.StreamingURI = model.ConfigDefaultBaseUri
+	}
+	stream := NewStreaming(context, s.StreamingURI)
+	stream.Start()
+	return stream
 }
 
 func (s *StreamingBuilder) NewDefaultStreamingURI() *StreamingBuilder {

@@ -24,10 +24,10 @@ type HttpConfig struct {
 }
 
 type Config struct {
-	StartWaitTime    time.Duration
-	OffLine          bool
-	HttpConfig       HttpConfig
-	StreamingBuilder *StreamingBuilder
+	StartWaitTime          time.Duration
+	OffLine                bool
+	HttpConfig             HttpConfig
+	UpdateProcessorFactory UpdateProcessorFactory
 }
 
 type BasicConfig struct {
@@ -35,21 +35,26 @@ type BasicConfig struct {
 	OffLine   bool
 }
 
-func newFFCConfig(builder *ConfigBuilder) *Config {
+func newConfig(builder *ConfigBuilder) *Config {
 
-	var streamingBuilder *StreamingBuilder
-	if builder.StreamingBuilder == nil {
-		streamingBuilder = NewStreamingBuilder().NewDefaultStreamingURI()
+	var updateProcessorFactory UpdateProcessorFactory
+	if builder.Offline {
+
+		// offline mode
+		// TODO
 	} else {
-		streamingBuilder = builder.StreamingBuilder
+
+		// Online mode
+		updateProcessorFactory = StreamingBuilderFactory()
 	}
+
 	ffcConfig := Config{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
 			SocketTime:  HttpConfigDefaultSocketTime,
 		},
-		StreamingBuilder: streamingBuilder,
-		StartWaitTime:    builder.StartWaitTime,
+		UpdateProcessorFactory: updateProcessorFactory,
+		StartWaitTime:          builder.StartWaitTime,
 	}
 	return &ffcConfig
 }
@@ -71,7 +76,7 @@ type ConfigBuilder struct {
 }
 
 func (c *ConfigBuilder) Build() *Config {
-	return newFFCConfig(c)
+	return newConfig(c)
 }
 
 func (c *ConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *ConfigBuilder {

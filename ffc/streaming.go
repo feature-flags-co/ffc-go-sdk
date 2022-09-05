@@ -3,8 +3,8 @@ package ffc
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/feature-flags-co/ffc-go-sdk/data"
+	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"github.com/gorilla/websocket"
 	"log"
@@ -20,7 +20,7 @@ type Streaming struct {
 	StreamingURL string
 }
 
-var sockectConn *websocket.Conn
+var socketConn *websocket.Conn
 
 func NewStreaming(config Context, streamingURI string) *Streaming {
 	return &Streaming{
@@ -42,13 +42,21 @@ func PingOrDataSync(stime *time.Time, msgType string) {
 	syncMessage := data.NewDataSyncMessage(timestamp, msgType)
 	msg, _ := json.Marshal(syncMessage)
 	log.Printf("ping message:%v", string(msg))
-	if sockectConn != nil {
-		err := sockectConn.WriteMessage(websocket.TextMessage, msg)
+	if socketConn != nil {
+		err := socketConn.WriteMessage(websocket.TextMessage, msg)
 		if err != nil {
 			log.Println("Ping write error :", err)
 			return
 		}
 	}
+}
+
+func (s *Streaming) Start() bool {
+	go s.Connect()
+	return true
+}
+func (s *Streaming) IsInitialized() bool {
+	return data.GetDataStorage().IsInitialized()
 }
 
 func (s *Streaming) Connect() {
@@ -69,7 +77,7 @@ func (s *Streaming) Connect() {
 
 	// setup web socket connection
 	c, rsp, err := websocket.DefaultDialer.Dial(path, headers)
-	sockectConn = c
+	socketConn = c
 
 	// send data sync message
 	PingOrDataSync(nil, model.MsgTypeDataSync)

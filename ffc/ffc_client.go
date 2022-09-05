@@ -18,11 +18,9 @@ type Client struct {
 func NewClient(envSecret string, config *Config) Client {
 
 	basicConfig := BasicConfig{OffLine: config.OffLine, EnvSecret: envSecret}
-	contextConfig := Context{BasicConfig: basicConfig, HttpConfig: config.HttpConfig}
-	stream := NewStreaming(contextConfig, config.StreamingBuilder.StreamingURI)
+	context := Context{BasicConfig: basicConfig, HttpConfig: config.HttpConfig}
 
-	// websocket connect
-	go stream.Connect()
+	config.UpdateProcessorFactory.CreateUpdateProcessor(context)
 
 	// new evaluator
 	evaluator := NewEvaluator(data.GetDataStorage())
