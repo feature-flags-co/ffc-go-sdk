@@ -45,7 +45,11 @@ func newConfig(builder *ConfigBuilder) *Config {
 	} else {
 
 		// Online mode
-		updateProcessorFactory = StreamingBuilderFactory()
+		if builder.UpdateProcessorFactory == nil {
+			updateProcessorFactory = StreamingBuilderFactory()
+		} else {
+			updateProcessorFactory = builder.UpdateProcessorFactory
+		}
 	}
 
 	ffcConfig := Config{
@@ -70,17 +74,17 @@ func NewConfigBuilder() *ConfigBuilder {
 
 // ConfigBuilder build data for config object
 type ConfigBuilder struct {
-	StartWaitTime    time.Duration
-	StreamingBuilder *StreamingBuilder
-	Offline          bool
+	StartWaitTime          time.Duration
+	UpdateProcessorFactory UpdateProcessorFactory
+	Offline                bool
 }
 
 func (c *ConfigBuilder) Build() *Config {
 	return newConfig(c)
 }
 
-func (c *ConfigBuilder) UpdateProcessorFactory(streamingBuilder *StreamingBuilder) *ConfigBuilder {
-	c.StreamingBuilder = streamingBuilder
+func (c *ConfigBuilder) SetUpdateProcessorFactory(streamingBuilder *StreamingBuilder) *ConfigBuilder {
+	c.UpdateProcessorFactory = streamingBuilder
 	return c
 }
 

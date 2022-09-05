@@ -34,7 +34,7 @@ func websocket() {
 
 	config := ffc.NewConfigBuilder().
 		SetOffline(false).
-		UpdateProcessorFactory(streamingBuilder).
+		SetUpdateProcessorFactory(streamingBuilder).
 		Build()
 	client = ffc.NewClient(envSecret, config)
 	fmt.Println(client)
