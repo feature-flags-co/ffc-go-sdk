@@ -26,7 +26,7 @@ using `ffc.InitializeFromExternalJson(json)` function
 
 To open the offline mode:
 ```
-config := ffc.DefaultFFCConfigBuilder().
+config := ffc.NewConfigBuilder().
 		SetOffline(false).
 		Build()
 client = ffc.NewClient(envSecret, config)
