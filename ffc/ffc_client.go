@@ -233,8 +233,55 @@ func (c *Client) InitializeFromExternalJson(jsonStr string) bool {
 // that describes the way the value was determined, that can be used on the client side sdk or a front end .
 // @Param user the end user requesting the flag
 // @Return
-func (c *Client) GetAllLatestFlagsVariations(user model.FFCUser) []model.AllFlagState {
-	stats := make([]model.AllFlagState, 0)
+func (c *Client) GetAllLatestFlagsVariations(user model.FFCUser) model.AllFlagState {
+
+	dataMap := make(map[model.EvalDetail]data.Event)
+	var success bool
+	var ed model.EvalDetail
+	var errorString string
+	if !c.IsInitialized() {
+
+		log.Print("FFC GO SDK: Evaluation is called before Go SDK client is initialized for feature flag")
+		ed = model.OfEvalDetail(model.EvaFlagNameUnknown,
+			model.EvaNoEvalRes,
+			model.EvaReasonClientNotReady,
+			model.EvaFlagKeyUnknown,
+			model.EvaFlagNameUnknown)
+		success = false
+		errorString = model.EvaReasonClientNotReady
+		dataMap[ed] = &data.NullEvent{}
+	} else if len(user.UserName) == 0 || len(user.Key) == 0 {
+		log.Print("FFC GO SDK: null user or feature flag")
+		ed = model.OfEvalDetail(model.EvaFlagNameUnknown,
+			model.EvaNoEvalRes,
+			model.EvaReasonUserNotSpecified,
+			model.EvaFlagKeyUnknown,
+			model.EvaFlagNameUnknown)
+		success = false
+		errorString = model.EvaReasonUserNotSpecified
+		dataMap[ed] = &data.NullEvent{}
+	} else {
+		allFlags := data.GetDataStorage().GetAll(data.FeaturesCat)
+		for _, v := range allFlags {
+			event := data.OfFlagEvent(user)
+			flag := v.Item.(data.FeatureFlag)
+			res := c.Evaluator.Evaluate(flag, user, &event)
+
+			ed = model.OfEvalDetail(res.Value,
+				res.Index,
+				res.Reason,
+				res.KeyName,
+				res.Name)
+			success = true
+			dataMap[ed] = &event
+		}
+	}
+
+	eds := make([]model.EvalDetail, 0)
+	for k, _ := range dataMap {
+		eds = append(eds, k)
+	}
+	stats := model.NewAllFlagStates(success, errorString, eds)
 	return stats
 }
 

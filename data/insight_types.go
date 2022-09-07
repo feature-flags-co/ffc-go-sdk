@@ -10,6 +10,16 @@ type Event interface {
 	Add(element interface{}) Event
 }
 
+type NullEvent struct {
+}
+
+func (n *NullEvent) IsSendEvent() bool {
+	return false
+}
+func (n *NullEvent) Add(element interface{}) Event {
+	return nil
+}
+
 type DefaultEvent struct {
 	User model.FFCUser
 }

@@ -11,12 +11,12 @@ type AllFlagState struct {
 	cache map[string]EvalDetail
 }
 
-// allFlagStates init AllFlagState Object
+// NewAllFlagStates init AllFlagState Object
 // @Param  success
 // @Param  message   the reason without flag value
 // @Param  data  a flag value with reason
 // @Return the AllFlagState Object
-func allFlagStates(success bool, message string, data []EvalDetail) AllFlagState {
+func NewAllFlagStates(success bool, message string, data []EvalDetail) AllFlagState {
 
 	var msg string
 	if success {
@@ -52,7 +52,7 @@ func initData(data []EvalDetail) map[string]EvalDetail {
 // @Param  the reason without flag value
 // @Return a AllFlagStates
 func (a *AllFlagState) Empty(message string) AllFlagState {
-	return allFlagStates(false, message, nil)
+	return NewAllFlagStates(false, message, nil)
 }
 
 // Of build a AllFlagStates
@@ -62,7 +62,7 @@ func (a *AllFlagState) Empty(message string) AllFlagState {
 // @Param <T>     String/Boolean/Numeric Type
 // @Return a AllFlagStates
 func (a *AllFlagState) Of(success bool, message string, data []EvalDetail) AllFlagState {
-	return allFlagStates(success, message, data)
+	return NewAllFlagStates(success, message, data)
 }
 
 // Get return a detail of a given flag key name

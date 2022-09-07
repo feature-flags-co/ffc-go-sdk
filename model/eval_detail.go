@@ -22,9 +22,9 @@ type EvalDetail struct {
 // @Param keyName
 // @Param name
 // @Return  an EvalDetail
-func OfEvalDetail(variation interface{}, id int64, reason string, keyName string, name string) *EvalDetail {
+func OfEvalDetail(variation interface{}, id int64, reason string, keyName string, name string) EvalDetail {
 
-	return &EvalDetail{
+	return EvalDetail{
 		Variation: variation,
 		Id:        id,
 		Reason:    reason,
