@@ -1,6 +1,7 @@
 package ffc
 
 import (
+	"encoding/json"
 	"github.com/feature-flags-co/ffc-go-sdk/data"
 	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
@@ -208,8 +209,24 @@ func (c *Client) GetAllUserTags() []model.UserTag {
 
 // InitializeFromExternalJson initialization in the offline mode
 // @Param featureFlagKey the unique key for the feature flag
-func (c *Client) InitializeFromExternalJson(featureFlagKey string) {
+func (c *Client) InitializeFromExternalJson(jsonStr string) bool {
 
+	if c.Offline && len(jsonStr) > 0 {
+		var all data.All
+		err := json.Unmarshal([]byte(jsonStr), &all)
+		if err != nil {
+			log.Fatalf("InitializeFromExternalJson message to All object error, error = %v", err)
+			return false
+		}
+		if all.IsProcessData() {
+			allData := all.Data
+			version := allData.Timestamp
+			itemMap := allData.ToStorageType()
+			data.GetDataStorage().Initialization(itemMap, version)
+		}
+		return true
+	}
+	return false
 }
 
 // GetAllLatestFlagsVariations  Returns a list of all feature flags value with details for a given user, including the reason

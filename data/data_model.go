@@ -1,6 +1,9 @@
 package data
 
-import "github.com/feature-flags-co/ffc-go-sdk/model"
+import (
+	"github.com/feature-flags-co/ffc-go-sdk/model"
+	"strings"
+)
 
 type StreamingMessage struct {
 	MessageType string `json:"messageType"`
@@ -21,6 +24,13 @@ type All struct {
 
 func (a *All) ToStorageType() map[Category]map[string]Item {
 	return a.Data.ToStorageType()
+}
+
+func (a *All) IsProcessData() bool {
+	return model.MsgTypeDataSync == strings.ToLower(a.MessageType) &&
+		len(a.Data.EventType) > 0 &&
+		(model.EventTypeFullOps == strings.ToLower(a.Data.EventType) ||
+			model.EventTypePatchOps == strings.ToLower(a.Data.EventType))
 }
 
 type TimestampData interface {
