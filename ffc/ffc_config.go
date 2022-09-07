@@ -39,11 +39,9 @@ func newConfig(builder *ConfigBuilder) *Config {
 
 	var updateProcessorFactory UpdateProcessorFactory
 	if builder.Offline {
-
 		// offline mode
-		// TODO
+		updateProcessorFactory = &NullUpdateProcessorFactory{}
 	} else {
-
 		// Online mode
 		if builder.UpdateProcessorFactory == nil {
 			updateProcessorFactory = StreamingBuilderFactory()

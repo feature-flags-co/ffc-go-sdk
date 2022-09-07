@@ -1,6 +1,8 @@
 package ffc
 
-import "github.com/feature-flags-co/ffc-go-sdk/data"
+import (
+	"github.com/feature-flags-co/ffc-go-sdk/data"
+)
 
 type UpdateProcessor interface {
 
@@ -38,7 +40,23 @@ type InsightProcessorFactory interface {
 	CreateInsightProcessor(context Context) InsightProcessor
 }
 
-
 func StreamingBuilderFactory() *StreamingBuilder {
 	return NewStreamingBuilder()
+}
+
+type NullUpdateProcessorFactory struct {
+}
+
+func (n *NullUpdateProcessorFactory) CreateUpdateProcessor(context Context) UpdateProcessor {
+	return &NullUpdateProcessor{}
+}
+
+type NullUpdateProcessor struct {
+}
+
+func (n *NullUpdateProcessor) Start() bool {
+	return true
+}
+func (n *NullUpdateProcessor) IsInitialized() bool {
+	return data.GetDataStorage().IsInitialized()
 }
