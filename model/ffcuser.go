@@ -101,7 +101,12 @@ func (f *FFCUser) IsEmpty() bool {
 }
 
 func NewFFUserBuilder() *FFUserBuilder {
-	return new(FFUserBuilder)
+
+	customMap := make(map[string]string, 0)
+	fb := new(FFUserBuilder)
+	fb.FFCUser.Custom = customMap
+	return fb
+
 }
 
 // Key Changes the user's key.

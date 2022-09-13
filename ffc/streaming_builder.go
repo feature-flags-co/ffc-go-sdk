@@ -20,7 +20,7 @@ func (s *StreamingBuilder) CreateUpdateProcessor(context Context) UpdateProcesso
 
 	// set default StreamingURI
 	if len(s.StreamingURI) == 0 {
-		s.StreamingURI = model.ConfigDefaultBaseUri
+		s.StreamingURI = model.ConfigDefaultWssUri
 	}
 	stream := NewStreaming(context, s.StreamingURI)
 	stream.Start()

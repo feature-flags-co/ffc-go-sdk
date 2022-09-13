@@ -29,12 +29,13 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 var client ffc.Client
 
 func websocket() {
-	envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
-	streamingBuilder := ffc.NewStreamingBuilder().NewStreamingURI("wss://api-dev.featureflag.co")
+	//envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
+	envSecret := "NWM4LTAzODgtNCUyMDIyMDcwNzE0MzUzN19fMTc3X18yMDZfXzQxNl9fZGVmYXVsdF8zNDY2Yw=="
+	//streamingBuilder := ffc.NewStreamingBuilder().NewStreamingURI("wss://api-dev.featureflag.co")
 
 	config := ffc.NewConfigBuilder().
 		SetOffline(false).
-		SetUpdateProcessorFactory(streamingBuilder).
+		//SetUpdateProcessorFactory(streamingBuilder).
 		Build()
 	client = ffc.NewClient(envSecret, config)
 	fmt.Println(client)
