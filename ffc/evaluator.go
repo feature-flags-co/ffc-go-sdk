@@ -85,13 +85,18 @@ func (e *Evaluator) matchConditionedUserVariation(flag data.FeatureFlag, user mo
 			break
 		}
 	}
-	return getRollOutVariationOption(rule.ValueOptionsVariationRuleValues,
-		user,
-		model.EvaReasonRuleMatch,
-		flag.ExptIncludeAllRules,
-		rule.IsIncludedInExpt,
-		flag.Info.KeyName,
-		flag.Info.Name)
+	if len(rule.RuleId) > 0 {
+		return getRollOutVariationOption(rule.ValueOptionsVariationRuleValues,
+			user,
+			model.EvaReasonRuleMatch,
+			flag.ExptIncludeAllRules,
+			rule.IsIncludedInExpt,
+			flag.Info.KeyName,
+			flag.Info.Name)
+	} else {
+		return nil
+	}
+
 }
 
 func getRollOutVariationOption(rollouts []data.VariationOptionPercentageRollout,
@@ -131,7 +136,6 @@ func isSendToExperiment(userKey string, out data.VariationOptionPercentageRollou
 		return false
 	}
 
-
 	upperBound := sendToExperimentPercentage / splittingPercentage
 	if upperBound > 1 {
 		upperBound = 1
@@ -153,12 +157,16 @@ func (e *Evaluator) matchTargetedUserVariation(flag data.FeatureFlag, user model
 			break
 		}
 	}
-	ret := data.NewEvalResultWithOption(tg.ValueOption,
-		model.EvaReasonTargetMatch,
-		flag.ExptIncludeAllRules,
-		flag.Info.KeyName,
-		flag.Info.Name)
-	return &ret
+	if len(tg.Individuals) > 0 {
+		ret := data.NewEvalResultWithOption(tg.ValueOption,
+			model.EvaReasonTargetMatch,
+			flag.ExptIncludeAllRules,
+			flag.Info.KeyName,
+			flag.Info.Name)
+		return &ret
+	} else {
+		return nil
+	}
 
 }
 func (e *Evaluator) matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag, user model.FFCUser,
@@ -190,12 +198,17 @@ func (e *Evaluator) matchFeatureFlagDisabledUserVariation(flag data.FeatureFlag,
 		}
 	}
 	log.Printf("ffp = %v", ffp)
-	ret := data.NewEvalResultWithOption(flag.Info.VariationOptionWhenDisabled,
-		model.EvaReasonPrerequisiteFailed,
-		false,
-		flag.Info.KeyName,
-		flag.Info.Name)
-	return &ret
+	if len(ffp.PrerequisiteFeatureFlagId) > 0 {
+		ret := data.NewEvalResultWithOption(flag.Info.VariationOptionWhenDisabled,
+			model.EvaReasonPrerequisiteFailed,
+			false,
+			flag.Info.KeyName,
+			flag.Info.Name)
+		return &ret
+	} else {
+		return nil
+	}
+
 }
 
 func equalsClause(user model.FFCUser, clause data.RuleItem) bool {
@@ -285,7 +298,7 @@ func (e *Evaluator) inSegmentClause(user model.FFCUser, clause data.RuleItem) bo
 		if item == (data.Item{}) {
 			return false
 		}
-		seg := item.Item.(*data.Segment)
+		seg := item.Item.(data.Segment)
 		ret := seg.IsMatchUser(pv)
 		if ret == nil {
 			rules := seg.Rules

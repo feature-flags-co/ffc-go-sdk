@@ -46,7 +46,7 @@ type DataStorage interface {
 }
 
 type InMemoryDataStorage struct {
-	initialized    bool
+	initialized bool
 	lock           sync.RWMutex
 	version        int64
 	dataStorageMap map[Category]map[string]Item
@@ -58,9 +58,8 @@ func GetDataStorage() *InMemoryDataStorage {
 	// if dataStorage not init
 	if dataStorage == nil {
 		dataStorage = &InMemoryDataStorage{
-			initialized:    false,
-			version:        -1,
-			lock:           sync.RWMutex{},
+			initialized: false,
+			version:     -1,
 			dataStorageMap: make(map[Category]map[string]Item, 0),
 		}
 	}
@@ -72,11 +71,11 @@ func (im *InMemoryDataStorage) Initialization(allData map[Category]map[string]It
 		return
 	}
 	im.lock.Lock()
+	defer im.lock.Unlock()
 	im.dataStorageMap = allData
 	im.version = version
 	im.initialized = true
 	log.Printf("Data storage initialized")
-	im.lock.Unlock()
 }
 
 func (im *InMemoryDataStorage) Get(category Category, key string) Item {
@@ -97,7 +96,7 @@ func (im *InMemoryDataStorage) Get(category Category, key string) Item {
 
 func (im *InMemoryDataStorage) GetAll(category Category) map[string]Item {
 
-	im.lock.Unlock()
+	im.lock.Lock()
 	defer im.lock.Unlock()
 	items := im.dataStorageMap[category]
 	if items == nil {

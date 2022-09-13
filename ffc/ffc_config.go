@@ -57,6 +57,7 @@ func newConfig(builder *ConfigBuilder) *Config {
 		},
 		UpdateProcessorFactory: updateProcessorFactory,
 		StartWaitTime:          builder.StartWaitTime,
+		OffLine:                builder.Offline,
 	}
 	return &ffcConfig
 }
