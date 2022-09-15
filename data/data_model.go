@@ -197,7 +197,7 @@ type FeatureFlagBasicInfo struct {
 	Type                                          int                                `json:"type"`
 	KeyName                                       string                             `json:"keyName"`
 	Status                                        string                             `json:"status"`
-	IsDefaultRulePercentageRolloutsIncludedInExpt bool                               `json:"IsDefaultRulePercentageRolloutsIncludedInExpt"`
+	IsDefaultRulePercentageRolloutsIncludedInExpt bool                               `json:"isDefaultRulePercentageRolloutsIncludedInExpt"`
 	LastUpdatedTime                               string                             `json:"lastUpdatedTime"`
 	DefaultRulePercentageRollouts                 []VariationOptionPercentageRollout `json:"defaultRulePercentageRollouts"`
 	VariationOptionWhenDisabled                   VariationOption                    `json:"variationOptionWhenDisabled"`
