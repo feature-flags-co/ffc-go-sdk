@@ -102,9 +102,10 @@ func (im *InMemoryDataStorage) GetAll(category Category) map[string]Item {
 	if items == nil {
 		return items
 	}
+
+	// create new map for item save
 	itemsMap := make(map[string]Item, 0)
 	for k, v := range items {
-
 		if !v.Item.Archived() {
 			itemsMap[k] = v
 		}

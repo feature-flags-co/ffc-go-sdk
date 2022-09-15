@@ -8,7 +8,7 @@ import (
 // AllFlagState The object provides a standard return responding the request of getting all flag values from a client sdk
 type AllFlagState struct {
 	BasicFlagState
-	cache map[string]EvalDetail
+	Cache map[string]EvalDetail
 }
 
 // NewAllFlagStates init AllFlagState Object
@@ -30,7 +30,7 @@ func NewAllFlagStates(success bool, message string, data []EvalDetail) AllFlagSt
 			Success: success,
 			Message: msg,
 		},
-		cache: initData(data),
+		Cache: initData(data),
 	}
 }
 
@@ -69,7 +69,7 @@ func (a *AllFlagState) Of(success bool, message string, data []EvalDetail) AllFl
 // @Param flagKeyName flag key name
 // @Return an {@link EvalDetail}
 func (a *AllFlagState) Get(flagKeyName string) EvalDetail {
-	return a.cache[flagKeyName]
+	return a.Cache[flagKeyName]
 
 }
 
