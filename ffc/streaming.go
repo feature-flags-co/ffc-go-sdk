@@ -143,7 +143,7 @@ func processDateAsync(all data.All) bool {
 
 	// init all data to data storage map
 	if model.EventTypeFullOps == eventType {
-		data.GetDataStorage().Initialization(dataMap, version)
+		data.GetDataStorage().Initialize(dataMap, version)
 	} else if model.EventTypePatchOps == eventType {
 
 		// update part data to data storage

@@ -7,10 +7,10 @@ import (
 
 type DataStorage interface {
 
-	// Initialization Overwrites the storage with a set of items for each collection, if the new version > the old one
+	// Initialize Overwrites the storage with a set of items for each collection, if the new version > the old one
 	// @Param allData map of Category and their data set Item
 	// @Param version the version of dataset, Ordinarily it's a timestamp.
-	Initialization(allData map[Category]map[string]Item, version int64)
+	Initialize(allData map[Category]map[string]Item, version int64)
 
 	// Get Retrieves an item from the specified collection, if available.
 	// @Param category specifies which collection to use
@@ -66,7 +66,7 @@ func GetDataStorage() *InMemoryDataStorage {
 	return dataStorage
 }
 
-func (im *InMemoryDataStorage) Initialization(allData map[Category]map[string]Item, version int64) {
+func (im *InMemoryDataStorage) Initialize(allData map[Category]map[string]Item, version int64) {
 	if version < 0 || im.version >= version || allData == nil || len(allData) == 0 {
 		return
 	}

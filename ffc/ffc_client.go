@@ -222,7 +222,7 @@ func (c *Client) InitializeFromExternalJson(jsonStr string) bool {
 			allData := all.Data
 			version := allData.Timestamp
 			itemMap := allData.ToStorageType()
-			data.GetDataStorage().Initialization(itemMap, version)
+			data.GetDataStorage().Initialize(itemMap, version)
 		}
 		return true
 	}
