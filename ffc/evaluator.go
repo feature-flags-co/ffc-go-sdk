@@ -298,7 +298,7 @@ func (e *Evaluator) inSegmentClause(user model.FFCUser, clause data.RuleItem) bo
 		if item == (data.Item{}) {
 			return false
 		}
-		seg := item.Item.(data.Segment)
+		seg := item.Item.(*data.Segment)
 		ret := seg.IsMatchUser(pv)
 		if ret == nil {
 			rules := seg.Rules

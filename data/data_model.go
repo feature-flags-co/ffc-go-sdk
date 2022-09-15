@@ -109,23 +109,23 @@ type Segment struct {
 	Rules      []TargetRule `json:"rules"`
 }
 
-func (s Segment) GetId() string {
+func (s *Segment) GetId() string {
 	return s.Id
 }
 
-func (s Segment) Archived() bool {
+func (s *Segment) Archived() bool {
 	return s.IsArchived
 }
 
-func (s Segment) GetTimestamp() int64 {
+func (s *Segment) GetTimestamp() int64 {
 	return s.Timestamp
 }
 
-func (s Segment) GetType() int {
+func (s *Segment) GetType() int {
 	return model.FFCSegment
 }
 
-func (s Segment) ToArchivedTimestampData() TimestampData {
+func (s *Segment) ToArchivedTimestampData() TimestampData {
 
 	adata := ArchivedTimestampData{
 		Id:         s.Id,
@@ -261,7 +261,7 @@ type FeatureFlagTargetIndividualUser struct {
 type Data struct {
 	EventType    string             `json:"eventType"`
 	FeatureFlags []FeatureFlag      `json:"featureFlags"`
-	Segments     []Segment          `json:"segments"`
+	Segments     []*Segment          `json:"segments"`
 	UserTags     []TimestampUserTag `json:"userTags"`
 	Timestamp    int64              `json:"timestamp"`
 }
