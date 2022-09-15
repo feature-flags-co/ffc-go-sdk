@@ -261,9 +261,9 @@ type FeatureFlagTargetIndividualUser struct {
 type Data struct {
 	EventType    string             `json:"eventType"`
 	FeatureFlags []FeatureFlag      `json:"featureFlags"`
-	Segments     []*Segment          `json:"segments"`
+	Segments     []*Segment         `json:"segments"`
 	UserTags     []TimestampUserTag `json:"userTags"`
-	Timestamp    int64              `json:"timestamp"`
+	Timestamp    int64
 }
 
 func (d *Data) ToStorageType() map[Category]map[string]Item {
