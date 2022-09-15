@@ -285,7 +285,7 @@ func matchRegExClause(user model.FFCUser, clause data.RuleItem) bool {
 
 func (e *Evaluator) inSegmentClause(user model.FFCUser, clause data.RuleItem) bool {
 
-	pv := user.Key
+	userKey := user.Key
 	var lists []string
 	err := json.Unmarshal([]byte(clause.Value), &lists)
 	if err != nil {
@@ -299,17 +299,23 @@ func (e *Evaluator) inSegmentClause(user model.FFCUser, clause data.RuleItem) bo
 			return false
 		}
 		seg := item.Item.(*data.Segment)
-		ret := seg.IsMatchUser(pv)
-		if ret == nil {
-			rules := seg.Rules
-			for _, r := range rules {
-				temp := e.ifUserMatchRule(user, r.RuleJsonContent)
-				if temp {
-					return true
-				}
+
+		for _, v := range seg.Excluded {
+			if v == userKey {
+				return false
 			}
-		} else {
-			return ret.Value
+		}
+		for _, v := range seg.Included {
+			if v == userKey {
+				return true
+			}
+		}
+		rules := seg.Rules
+		for _, r := range rules {
+			temp := e.ifUserMatchRule(user, r.RuleJsonContent)
+			if temp {
+				return true
+			}
 		}
 	}
 	return false
