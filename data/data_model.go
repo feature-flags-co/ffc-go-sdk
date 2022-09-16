@@ -134,30 +134,6 @@ func (s *Segment) ToArchivedTimestampData() TimestampData {
 	}
 	return &adata
 }
-
-type Bool struct {
-	Value bool
-}
-
-func (s *Segment) IsMatchUser(userKeyId string) *Bool {
-
-	for _, v := range s.Excluded {
-		if v == userKeyId {
-			return &Bool{
-				Value: false,
-			}
-		}
-	}
-	for _, v := range s.Included {
-		if v == userKeyId {
-			return &Bool{
-				Value: true,
-			}
-		}
-	}
-	return nil
-}
-
 type TimestampUserTag struct {
 	model.UserTag
 	Id         string `json:"id"`
