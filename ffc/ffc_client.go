@@ -389,8 +389,8 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 			evaResult.Name)
 	}
 
-	// TODO
-	//eventHandler.accept(event);
+	// TODO test insight process
+	c.insightProcessor.Send(&event)
 
 	er := data.EvalResult{
 		Index:            evaResult.Index,
