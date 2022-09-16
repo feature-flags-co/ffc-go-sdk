@@ -9,10 +9,11 @@ import (
 )
 
 type Client struct {
-	Offline     bool
-	Evaluator   Evaluator
-	EnvSecret   string
-	dataStorage data.DataStorage
+	Offline          bool
+	Evaluator        Evaluator
+	EnvSecret        string
+	dataStorage      data.DataStorage
+	insightProcessor InsightProcessor
 }
 
 // NewClient create a new client instance.
@@ -22,14 +23,16 @@ func NewClient(envSecret string, config *Config) Client {
 	context := Context{BasicConfig: basicConfig, HttpConfig: config.HttpConfig}
 
 	config.UpdateProcessorFactory.CreateUpdateProcessor(context)
+	insightProcessor := config.InsightProcessorFactory.CreateInsightProcessor(context)
 
 	// new evaluator
 	evaluator := NewEvaluator(data.GetDataStorage())
 	return Client{
-		Offline:     config.OffLine,
-		Evaluator:   evaluator,
-		EnvSecret:   envSecret,
-		dataStorage: data.GetDataStorage(),
+		Offline:          config.OffLine,
+		Evaluator:        evaluator,
+		EnvSecret:        envSecret,
+		insightProcessor: insightProcessor,
+		dataStorage:      data.GetDataStorage(),
 	}
 }
 

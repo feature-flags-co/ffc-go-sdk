@@ -24,10 +24,11 @@ type HttpConfig struct {
 }
 
 type Config struct {
-	StartWaitTime          time.Duration
-	OffLine                bool
-	HttpConfig             HttpConfig
-	UpdateProcessorFactory UpdateProcessorFactory
+	StartWaitTime           time.Duration
+	OffLine                 bool
+	HttpConfig              HttpConfig
+	UpdateProcessorFactory  UpdateProcessorFactory
+	InsightProcessorFactory InsightProcessorFactory
 }
 
 type BasicConfig struct {
@@ -49,15 +50,15 @@ func newConfig(builder *ConfigBuilder) *Config {
 			updateProcessorFactory = builder.UpdateProcessorFactory
 		}
 	}
-
 	ffcConfig := Config{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
 			SocketTime:  HttpConfigDefaultSocketTime,
 		},
-		UpdateProcessorFactory: updateProcessorFactory,
-		StartWaitTime:          builder.StartWaitTime,
-		OffLine:                builder.Offline,
+		UpdateProcessorFactory:  updateProcessorFactory,
+		InsightProcessorFactory: NewInsightBuilder(),
+		StartWaitTime:           builder.StartWaitTime,
+		OffLine:                 builder.Offline,
 	}
 	return &ffcConfig
 }
@@ -87,7 +88,7 @@ func (c *ConfigBuilder) SetUpdateProcessorFactory(streamingBuilder *StreamingBui
 	return c
 }
 
-func (c *ConfigBuilder) insightProcessorFactory() *ConfigBuilder {
+func (c *ConfigBuilder) SetInsightProcessorFactory() *ConfigBuilder {
 	return c
 }
 
