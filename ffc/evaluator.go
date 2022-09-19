@@ -57,7 +57,7 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 		if er != nil {
 			log.Printf("FFC GO SDK:user %v Feature Flag %v, Flag Value %v", user.Key, flag.Info.KeyName, er.Value)
 			if event != nil {
-				event.Add(data.OfFlagEventVariation(flag.Info.KeyName, er))
+				event.Add(data.NewFlagEventVariation(flag.Info.KeyName, er))
 			}
 		}
 	}()

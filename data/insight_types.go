@@ -34,17 +34,13 @@ func (f *DefaultEvent) Add(element interface{}) *Event {
 	return nil
 }
 
-type FlagEvent struct {
-	DefaultEvent
-	UserVariations []FlagEventVariation
-}
 type FlagEventVariation struct {
 	FeatureFlagKeyName string
 	Timestamp          int64
 	Variation          *EvalResult
 }
 
-func OfFlagEventVariation(featureFlagKeyName string, variation *EvalResult) FlagEventVariation {
+func NewFlagEventVariation(featureFlagKeyName string, variation *EvalResult) FlagEventVariation {
 
 	return FlagEventVariation{
 		FeatureFlagKeyName: featureFlagKeyName,
@@ -52,6 +48,12 @@ func OfFlagEventVariation(featureFlagKeyName string, variation *EvalResult) Flag
 		Variation:          variation,
 	}
 }
+
+type FlagEvent struct {
+	DefaultEvent
+	UserVariations []FlagEventVariation
+}
+
 func (f *FlagEvent) IsSendEvent() bool {
 	// TODO
 	return false
@@ -62,7 +64,7 @@ func (f *FlagEvent) Add(element interface{}) Event {
 	return nil
 }
 
-func OfFlagEvent(user model.FFCUser) FlagEvent {
+func NewFlagEvent(user model.FFCUser) FlagEvent {
 	event := DefaultEvent{
 		User: user,
 	}
@@ -70,4 +72,17 @@ func OfFlagEvent(user model.FFCUser) FlagEvent {
 		DefaultEvent: event,
 	}
 
+}
+
+type MetricEvent struct {
+}
+
+func (m *MetricEvent) IsSendEvent() bool {
+	// TODO
+	return false
+}
+
+func (m *MetricEvent) Add(element interface{}) Event {
+	// TODO
+	return nil
 }

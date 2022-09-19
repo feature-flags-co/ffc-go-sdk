@@ -66,4 +66,11 @@ const (
 	ConfigDefaultBaseUri       = "https://api.featureflag.co"
 	ConfigDefaultEventsUri     = "https://api.featureflag.co"
 	ConfigDefaultStartWaitTime = time.Duration(time.Second * 15)
+
+	InsightDefaultEventURI      = "https://api.featureflag.co"
+	InsightDefaultCapacity      = 10000
+	InsightDefaultRetryDelay    = 100
+	InsightDefaultRetryTimes    = 1
+	InsightDefaultFlushInterval = time.Duration(time.Second * 1)
+	InsightEventPath            = "/api/public/track"
 )

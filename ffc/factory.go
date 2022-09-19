@@ -40,6 +40,11 @@ type InsightProcessorFactory interface {
 	CreateInsightProcessor(context Context) InsightProcessor
 }
 
+type InsightEventSender interface {
+	SendEvent(eventUrl string, json string)
+}
+
+
 func StreamingBuilderFactory() *StreamingBuilder {
 	return NewStreamingBuilder()
 }

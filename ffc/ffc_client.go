@@ -266,7 +266,7 @@ func (c *Client) GetAllLatestFlagsVariations(user model.FFCUser) model.AllFlagSt
 	} else {
 		allFlags := data.GetDataStorage().GetAll(data.FeaturesCat)
 		for _, v := range allFlags {
-			event := data.OfFlagEvent(user)
+			event := data.NewFlagEvent(user)
 			flag := v.Item.(data.FeatureFlag)
 			res := c.Evaluator.Evaluate(flag, user, &event)
 
@@ -377,7 +377,7 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 			model.EvaFlagNameUnknown)
 	}
 
-	event := data.OfFlagEvent(user)
+	event := data.NewFlagEvent(user)
 	evaResult := c.Evaluator.Evaluate(featureFlag, user, &event)
 
 	if checkType && !evaResult.CheckType(defaultValue) {
