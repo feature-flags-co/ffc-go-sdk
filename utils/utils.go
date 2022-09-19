@@ -177,6 +177,11 @@ func GetFloat64(v interface{}) float64 {
 	return 0
 }
 
+func IsNum(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
+}
+
 func GetBool(v interface{}) bool {
 	switch result := v.(type) {
 	case bool:

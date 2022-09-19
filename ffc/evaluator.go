@@ -278,7 +278,11 @@ func matchRegExClause(user model.FFCUser, clause data.RuleItem) bool {
 
 	pv := user.GetProperty(clause.Property)
 	value := clause.Value
-	reg, _ := regexp.Compile(value)
+	reg, err := regexp.Compile(value)
+
+	if err != nil {
+		return false
+	}
 	ret := reg.Match([]byte(pv))
 	return ret
 }
@@ -325,17 +329,23 @@ func thanClause(user model.FFCUser, clause data.RuleItem) bool {
 	pv := user.GetProperty(clause.Property)
 	value := clause.Value
 
+	isPvNum := utils.IsNum(pv)
+	isValueFNum := utils.IsNum(value)
+	if !isPvNum || !isValueFNum {
+		return false
+	}
+
 	pvf := utils.GetFloat64(pv)
-	valuef := utils.GetFloat64(value)
+	valueF := utils.GetFloat64(value)
 	switch clause.Operation {
 	case model.EvaGeClause:
-		return pvf >= valuef
+		return pvf >= valueF
 	case model.EvaGtClause:
-		return pvf > valuef
+		return pvf > valueF
 	case model.EvaLeClause:
-		return pvf <= valuef
+		return pvf <= valueF
 	case model.EvaLtClause:
-		return pvf < valuef
+		return pvf < valueF
 	default:
 		return false
 
