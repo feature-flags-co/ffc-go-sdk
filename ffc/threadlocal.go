@@ -1,5 +1,6 @@
 package ffc
 
+// Package ffc ThreadLocal is not in use, it will be use later
 import (
 	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/timandy/routine"
