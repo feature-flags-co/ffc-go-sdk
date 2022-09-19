@@ -380,7 +380,7 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 	event := data.OfFlagEvent(user)
 	evaResult := c.Evaluator.Evaluate(featureFlag, user, &event)
 
-	if checkType {
+	if checkType && !evaResult.CheckType(defaultValue) {
 		log.Printf("FFC GO SDK:evaluation result %s didn't matched expected type ", evaResult.Value)
 		data.ErrorWithDefaultValue(utils.GetString(defaultValue),
 			model.EvaReasonWrongType,

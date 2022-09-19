@@ -1,6 +1,8 @@
 package data
 
-import "github.com/feature-flags-co/ffc-go-sdk/model"
+import (
+	"github.com/feature-flags-co/ffc-go-sdk/model"
+)
 
 type EvalResult struct {
 	Index            int64
@@ -40,4 +42,26 @@ func Error(reason string, keyName string, name string) EvalResult {
 }
 func ErrorWithDefaultValue(defaultValue string, reason string, keyName string, name string) EvalResult {
 	return NewEvalResult(defaultValue, model.EvaNoEvalRes, reason, false, keyName, name)
+}
+
+func (e *EvalResult) CheckType(defaultValue interface{}) bool {
+
+	if len(e.Value) == 0 {
+		return false
+	}
+	switch defaultValue.(type) {
+	case string:
+		return true
+	case bool:
+		return true
+	case int:
+		return true
+	case int64:
+		return true
+	case float64:
+		return true
+	default:
+		return false
+	}
+
 }
