@@ -344,8 +344,7 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 
 	// not finish init data
 	if !c.IsInitialized() {
-		log.Print("FFC GO SDK: evaluation is called before GO SDK client is initialized for feature flag, " +
-			"well using the default value")
+		log.Print("FFC GO SDK: evaluation is called before GO SDK client is initialized, and default value will be used.")
 		return data.ErrorWithDefaultValue(defaultValue.(string),
 			model.EvaReasonClientNotReady,
 			featureFlagKey,
