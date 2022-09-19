@@ -97,18 +97,11 @@ func ToBool(str string) bool {
 		return false
 	}
 	strLow := strings.ToLower(str)
-	if strLow == "yes" {
+	if strLow == "yes" || strLow == "true" {
 		return true
-	} else if strLow == "no" {
-		return false
-	} else if strLow == "true" {
-		return true
-	} else if strLow == "false" {
-		return false
 	} else {
 		return false
 	}
-
 }
 
 func GetString(v interface{}) string {
