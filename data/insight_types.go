@@ -21,7 +21,7 @@ func (n *NullEvent) Add(element interface{}) Event {
 }
 
 type DefaultEvent struct {
-	User model.FFCUser
+	User model.FFCUser `json:"user"`
 }
 
 func (f *DefaultEvent) IsSendEvent() bool {
@@ -33,9 +33,9 @@ func (f *DefaultEvent) Add(element interface{}) *Event {
 }
 
 type FlagEventVariation struct {
-	FeatureFlagKeyName string
-	Timestamp          int64
-	Variation          *EvalResult
+	FeatureFlagKeyName string      `json:"featureFlagKeyName"`
+	Timestamp          int64       `json:"timestamp"`
+	Variation          *EvalResult `json:"variation"`
 }
 
 func NewFlagEventVariation(featureFlagKeyName string, variation *EvalResult) FlagEventVariation {
@@ -49,7 +49,7 @@ func NewFlagEventVariation(featureFlagKeyName string, variation *EvalResult) Fla
 
 type FlagEvent struct {
 	DefaultEvent
-	UserVariations []FlagEventVariation
+	UserVariations []FlagEventVariation `json:"userVariations"`
 }
 
 func (f *FlagEvent) IsSendEvent() bool {

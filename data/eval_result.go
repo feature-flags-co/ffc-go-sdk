@@ -5,12 +5,12 @@ import (
 )
 
 type EvalResult struct {
-	Index            int64
-	Value            string
-	Reason           string
-	SendToExperiment bool
-	KeyName          string
-	Name             string
+	Index            int64  `json:"index"`
+	Value            string `json:"value"`
+	Reason           string `json:"reason"`
+	SendToExperiment bool   `json:"sendToExperiment"`
+	KeyName          string `json:"keyName"`
+	Name             string `json:"name"`
 }
 
 func NewEvalResult(value string, index int64, reason string, sendToExperiment bool, keyName string,
