@@ -25,12 +25,10 @@ type DefaultEvent struct {
 }
 
 func (f *DefaultEvent) IsSendEvent() bool {
-	// TODO
 	return false
 }
 
 func (f *DefaultEvent) Add(element interface{}) *Event {
-	// TODO
 	return nil
 }
 
@@ -55,13 +53,18 @@ type FlagEvent struct {
 }
 
 func (f *FlagEvent) IsSendEvent() bool {
-	// TODO
+	if len(f.User.UserName) > 0 && len(f.UserVariations) > 0 {
+		return true
+	}
 	return false
 }
 
 func (f *FlagEvent) Add(element interface{}) Event {
-	// TODO
-	return nil
+	if len(f.UserVariations) > 0 {
+		fev := element.(FlagEventVariation)
+		f.UserVariations = append(f.UserVariations, fev)
+	}
+	return f
 }
 
 func NewFlagEvent(user model.FFCUser) FlagEvent {
@@ -74,15 +77,42 @@ func NewFlagEvent(user model.FFCUser) FlagEvent {
 
 }
 
+type Metric struct {
+	Route        string
+	Type         string
+	EventName    string
+	NumericValue float64
+	AppType      string
+}
+
+func NewMetric(eventName string, numericValue float64) Metric {
+	return Metric{
+		Route:        "index/metric",
+		Type:         "CustomEvent",
+		AppType:      "javaserverside",
+		EventName:    eventName,
+		NumericValue: numericValue,
+	}
+}
+
 type MetricEvent struct {
+	DefaultEvent
+	Metrics []Metric
 }
 
 func (m *MetricEvent) IsSendEvent() bool {
-	// TODO
+
+	if len(m.User.UserName) > 0 && len(m.Metrics) > 0 {
+		return true
+	}
 	return false
 }
 
 func (m *MetricEvent) Add(element interface{}) Event {
-	// TODO
-	return nil
+
+	event := element.(Metric)
+	if len(m.Metrics) > 0 {
+		m.Metrics = append(m.Metrics, event)
+	}
+	return m
 }

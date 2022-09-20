@@ -7,7 +7,7 @@ import (
 
 type InsightBuilder struct {
 	MaxRetryTimes int
-	RetryInterval int
+	RetryInterval int    // Millisecond
 	HttpConfig    HttpConfig
 	EventUri      string
 	Capacity      float64
