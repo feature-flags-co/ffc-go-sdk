@@ -1,11 +1,7 @@
 package utils
 
 import (
-	"bytes"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -76,11 +72,11 @@ func substring(source string, start int, end int) string {
 	return substring
 }
 
-// DefaultHeaders set dafault header for ffc request
+// DefaultHeaders set default header for ffc request
 func DefaultHeaders(envSecret string) map[string]string {
 	headers := make(map[string]string, 0)
 	headers["envSecret"] = envSecret
-	headers["User-Agent"] = "ffc-go-server-sdk4"
+	headers["User-Agent"] = "ffc-go-server-sdk"
 	headers["Content-Type"] = "application/json"
 	return headers
 }
@@ -95,51 +91,6 @@ func HeaderBuilderFor(headers map[string]string) http.Header {
 	}
 	return header
 }
-
-func PostJson(url string, jsonData string, retryTimes int, retryInterval int) string {
-	return PostJsonWithHeaders(nil, url, jsonData, retryTimes, retryInterval)
-}
-
-func PostJsonWithHeaders(headers map[string]string, url string, jsonData string, retryTimes int,
-	retryInterval int) string {
-
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(jsonData)))
-	if request == nil {
-		log.Fatalf("http new request error, request is nil")
-		return ""
-	}
-	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	if len(headers) > 0 {
-		for k, v := range headers {
-			request.Header.Set(k, v)
-		}
-	}
-	client := &http.Client{}
-	var response *http.Response
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Fatalf("http request close error error = %v", err)
-		}
-	}(response.Body)
-
-	for i := 0; i <= retryTimes; i++ {
-		if i > 0 {
-			time.Sleep(time.Duration(time.Duration(retryInterval)*time.Millisecond))
-		}
-		var doErr error
-		response, doErr = client.Do(request)
-		if doErr != nil {
-			log.Fatalf("http do request error, error = %v", err)
-		} else {
-			body, _ := ioutil.ReadAll(response.Body)
-			fmt.Println("response Body:", string(body))
-			return string(body)
-		}
-	}
-	return ""
-}
-
 
 func ToBool(str string) bool {
 	if len(str) == 0 {

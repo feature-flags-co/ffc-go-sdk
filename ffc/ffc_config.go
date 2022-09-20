@@ -1,7 +1,10 @@
 package ffc
 
 import (
+	"crypto/tls"
 	"log"
+	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -18,9 +21,11 @@ func init() {
 var ffcConfigBuilder *ConfigBuilder
 
 type HttpConfig struct {
-	ConnectTime time.Duration
-	SocketTime  time.Duration
-	Headers     map[string]string
+	ConnectTime     time.Duration
+	SocketTime      time.Duration
+	Headers         map[string]string
+	TLSClientConfig *tls.Config
+	Proxy           func(*http.Request) (*url.URL, error)
 }
 
 type Config struct {
@@ -29,6 +34,7 @@ type Config struct {
 	HttpConfig              HttpConfig
 	UpdateProcessorFactory  UpdateProcessorFactory
 	InsightProcessorFactory InsightProcessorFactory
+	HttpConfigFactory       HttpConfigFactory
 }
 
 type BasicConfig struct {
@@ -38,6 +44,7 @@ type BasicConfig struct {
 
 func newConfig(builder *ConfigBuilder) *Config {
 
+	// build process factory
 	var updateProcessorFactory UpdateProcessorFactory
 	if builder.Offline {
 		// offline mode
@@ -50,13 +57,30 @@ func newConfig(builder *ConfigBuilder) *Config {
 			updateProcessorFactory = builder.UpdateProcessorFactory
 		}
 	}
+
+	// build insight factory
+	var insightProcessorFactory InsightProcessorFactory
+	if builder.InsightProcessorFactory == nil {
+		insightProcessorFactory = InsightBuilderFactory()
+	} else {
+		insightProcessorFactory = builder.InsightProcessorFactory
+	}
+
+	// build http factory
+	var httpConfigFactory HttpConfigFactory
+	if builder.HttpConfigFactory == nil {
+		httpConfigFactory = HttpConfigBuilderFactory()
+	} else {
+		httpConfigFactory = builder.HttpConfigFactory
+	}
 	ffcConfig := Config{
 		HttpConfig: HttpConfig{
 			ConnectTime: HttpConfigDefaultConnTime,
 			SocketTime:  HttpConfigDefaultSocketTime,
 		},
 		UpdateProcessorFactory:  updateProcessorFactory,
-		InsightProcessorFactory: NewInsightBuilder(),
+		InsightProcessorFactory: insightProcessorFactory,
+		HttpConfigFactory:       httpConfigFactory,
 		StartWaitTime:           builder.StartWaitTime,
 		OffLine:                 builder.Offline,
 	}
@@ -74,9 +98,11 @@ func NewConfigBuilder() *ConfigBuilder {
 
 // ConfigBuilder build data for config object
 type ConfigBuilder struct {
-	StartWaitTime          time.Duration
-	UpdateProcessorFactory UpdateProcessorFactory
-	Offline                bool
+	StartWaitTime           time.Duration
+	UpdateProcessorFactory  UpdateProcessorFactory
+	InsightProcessorFactory InsightProcessorFactory
+	HttpConfigFactory       HttpConfigFactory
+	Offline                 bool
 }
 
 func (c *ConfigBuilder) Build() *Config {
@@ -88,7 +114,13 @@ func (c *ConfigBuilder) SetUpdateProcessorFactory(streamingBuilder *StreamingBui
 	return c
 }
 
-func (c *ConfigBuilder) SetInsightProcessorFactory() *ConfigBuilder {
+func (c *ConfigBuilder) SetInsightProcessorFactory(insightProcessorFactory InsightProcessorFactory) *ConfigBuilder {
+	c.InsightProcessorFactory = insightProcessorFactory
+	return c
+}
+
+func (c *ConfigBuilder) SetHttpConfigFactory(httpConfigFactory HttpConfigFactory) *ConfigBuilder {
+	c.HttpConfigFactory = httpConfigFactory
 	return c
 }
 

@@ -72,9 +72,9 @@ func NewFlagEvent(user model.FFCUser) FlagEvent {
 		User: user,
 	}
 	return FlagEvent{
-		DefaultEvent: event,
+		DefaultEvent:   event,
+		UserVariations: make([]FlagEventVariation, 0),
 	}
-
 }
 
 type Metric struct {
@@ -98,6 +98,16 @@ func NewMetric(eventName string, numericValue float64) Metric {
 type MetricEvent struct {
 	DefaultEvent
 	Metrics []Metric
+}
+
+func NewMetricEvent(user model.FFCUser) MetricEvent {
+	event := DefaultEvent{
+		User: user,
+	}
+	return MetricEvent{
+		DefaultEvent: event,
+		Metrics:      make([]Metric, 0),
+	}
 }
 
 func (m *MetricEvent) IsSendEvent() bool {

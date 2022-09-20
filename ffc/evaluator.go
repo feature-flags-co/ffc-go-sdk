@@ -33,6 +33,10 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 	var er *data.EvalResult
 	er = e.matchFeatureFlagDisabledUserVariation(flag, user, event)
 	if er != nil {
+		log.Printf("FFC GO SDK:user %v Feature Flag %v, Flag Value %v", user.Key, flag.Info.KeyName, er.Value)
+		if event != nil {
+			event.Add(data.NewFlagEventVariation(flag.Info.KeyName, er))
+		}
 		return er
 	}
 
@@ -53,14 +57,6 @@ func (e *Evaluator) matchUserVariation(flag data.FeatureFlag, user model.FFCUser
 		return er
 	}
 
-	defer func() {
-		if er != nil {
-			log.Printf("FFC GO SDK:user %v Feature Flag %v, Flag Value %v", user.Key, flag.Info.KeyName, er.Value)
-			if event != nil {
-				event.Add(data.NewFlagEventVariation(flag.Info.KeyName, er))
-			}
-		}
-	}()
 	return er
 }
 

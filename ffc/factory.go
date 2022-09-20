@@ -40,13 +40,16 @@ type InsightProcessorFactory interface {
 	CreateInsightProcessor(context Context) InsightProcessor
 }
 
+func StreamingBuilderFactory() *StreamingBuilder {
+	return NewStreamingBuilder()
+}
+
 type InsightEventSender interface {
 	SendEvent(eventUrl string, json string)
 }
 
-
-func StreamingBuilderFactory() *StreamingBuilder {
-	return NewStreamingBuilder()
+func InsightBuilderFactory() *InsightBuilder {
+	return NewInsightBuilder()
 }
 
 type NullUpdateProcessorFactory struct {
@@ -64,4 +67,15 @@ func (n *NullUpdateProcessor) Start() bool {
 }
 func (n *NullUpdateProcessor) IsInitialized() bool {
 	return data.GetDataStorage().IsInitialized()
+}
+
+type HttpConfigFactory interface {
+	// CreateHttpConfig Creates the http configuration.
+	// @Param config provides the basic SDK configuration properties
+	// @Return an HttpConfig instance
+	CreateHttpConfig(config BasicConfig) HttpConfig
+}
+
+func HttpConfigBuilderFactory() *HttpConfigBuilder {
+	return NewHttpConfigBuilder()
 }

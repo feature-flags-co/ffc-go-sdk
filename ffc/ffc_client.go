@@ -19,8 +19,7 @@ type Client struct {
 // NewClient create a new client instance.
 func NewClient(envSecret string, config *Config) Client {
 
-	basicConfig := BasicConfig{OffLine: config.OffLine, EnvSecret: envSecret}
-	context := Context{BasicConfig: basicConfig, HttpConfig: config.HttpConfig}
+	context := NewContext(envSecret, config)
 
 	config.UpdateProcessorFactory.CreateUpdateProcessor(context)
 	insightProcessor := config.InsightProcessorFactory.CreateInsightProcessor(context)
@@ -292,51 +291,29 @@ func (c *Client) GetAllLatestFlagsVariations(user model.FFCUser) model.AllFlagSt
 func (c *Client) Flush() {
 }
 
-// TrackMetricWithUser tracks that a user performed an event and provides a default numeric value for custom metrics
-// @Param user  the user that performed the event
-// @Param eventName the name of the event
-func (c *Client) TrackMetricWithUser(user model.FFCUser, eventName string) {
-}
-
 // TrackMetric tracks that a user performed an event and provides a default numeric value for custom metrics
-// @Param eventName the name of the event
-func (c *Client) TrackMetric(eventName string) {
-}
-
-// TrackMetricWithUserAndValue tracks that a user performed an event and provides a default numeric value for custom metrics
 // @Param user  the user that performed the event
 // @Param eventName the name of the event
-// @Param metricValue a numeric value used by the experimentation feature in numeric custom metrics.
-func (c *Client) TrackMetricWithUserAndValue(user model.FFCUser, eventName string, metricValue float64) {
+func (c *Client) TrackMetric(user model.FFCUser, eventName string) {
 }
 
 // TrackMetricWithValue tracks that a user performed an event and provides a default numeric value for custom metrics
+// @Param user  the user that performed the event
 // @Param eventName the name of the event
 // @Param metricValue a numeric value used by the experimentation feature in numeric custom metrics.
-func (c *Client) TrackMetricWithValue(eventName string, metricValue float64) {
-}
-
-// TrackMetricsWithUser tracks that a user performed an event and provides a default numeric value for custom metrics
-// @Param user  the user that performed the event
-// @Param eventName the name of the events
-func (c *Client) TrackMetricsWithUser(user model.FFCUser, eventName ...string) {
+func (c *Client) TrackMetricWithValue(user model.FFCUser, eventName string, metricValue float64) {
 }
 
 // TrackMetrics tracks that a user performed an event and provides a default numeric value for custom metrics
 // @Param user  the user that performed the event
 // @Param eventName the name of the events
-func (c *Client) TrackMetrics(eventName ...string) {
-}
-
-// TrackMetricSeriesWithUser tracks that a user performed an event and provides a default numeric value for custom metrics
-// @Param user  the user that performed the event
-// @Param metrics event name and numeric value in K/V
-func (c *Client) TrackMetricSeriesWithUser(user model.FFCUser, metrics map[string]float64) {
+func (c *Client) TrackMetrics(user model.FFCUser, eventName ...string) {
 }
 
 // TrackMetricSeries tracks that a user performed an event and provides a default numeric value for custom metrics
+// @Param user  the user that performed the event
 // @Param metrics event name and numeric value in K/V
-func (c *Client) TrackMetricSeries(metrics map[string]float64) {
+func (c *Client) TrackMetricSeries(user model.FFCUser, metrics map[string]float64) {
 }
 
 func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, defaultValue interface{},

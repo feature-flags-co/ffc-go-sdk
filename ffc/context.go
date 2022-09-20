@@ -6,10 +6,12 @@ type Context struct {
 }
 
 // NewContext create Context object
-// @Param httpConfig
-// @Param basicConfig
+// @Param envSecret
+// @Param config
 // @Return a Context object
-func NewContext(httpConfig HttpConfig, basicConfig BasicConfig) Context {
+func NewContext(envSecret string, config *Config) Context {
+	basicConfig := BasicConfig{OffLine: config.OffLine, EnvSecret: envSecret}
+	httpConfig := config.HttpConfigFactory.CreateHttpConfig(basicConfig)
 	return Context{
 		BasicConfig: basicConfig,
 		HttpConfig:  httpConfig,
