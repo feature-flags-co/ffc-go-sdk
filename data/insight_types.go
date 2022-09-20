@@ -60,10 +60,8 @@ func (f *FlagEvent) IsSendEvent() bool {
 }
 
 func (f *FlagEvent) Add(element interface{}) Event {
-	if len(f.UserVariations) > 0 {
-		fev := element.(FlagEventVariation)
-		f.UserVariations = append(f.UserVariations, fev)
-	}
+	fev := element.(FlagEventVariation)
+	f.UserVariations = append(f.UserVariations, fev)
 	return f
 }
 
@@ -121,8 +119,6 @@ func (m *MetricEvent) IsSendEvent() bool {
 func (m *MetricEvent) Add(element interface{}) Event {
 
 	event := element.(Metric)
-	if len(m.Metrics) > 0 {
-		m.Metrics = append(m.Metrics, event)
-	}
+	m.Metrics = append(m.Metrics, event)
 	return m
 }

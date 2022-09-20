@@ -70,14 +70,17 @@ func (i *Insight) Flush() {
 }
 
 func (i *Insight) putEventAsync(insightType uint, event data.Event) {
-	i.queue.Push(event)
 
-	// TODO  add a go routine to send data to ffc server
-	jsonData, err := json.Marshal(event)
-	if err != nil {
-		log.Printf("envet marshal error, error: %v", err)
-	} else {
-		i.InsightConfig.sender.SendEvent(i.InsightConfig.EventUrl, string(jsonData))
+	if event.IsSendEvent() {
+		i.queue.Push(event)
+
+		// TODO  add a go routine to send data to ffc server
+		jsonData, err := json.Marshal(event)
+		if err != nil {
+			log.Printf("envet marshal error, error: %v", err)
+		} else {
+			i.InsightConfig.sender.SendEvent(i.InsightConfig.EventUrl, string(jsonData))
+		}
 	}
 
 }

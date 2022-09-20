@@ -280,8 +280,9 @@ func (c *Client) GetAllLatestFlagsVariations(user model.FFCUser) model.AllFlagSt
 	}
 
 	eds := make([]model.EvalDetail, 0)
-	for k, _ := range dataMap {
+	for k, v := range dataMap {
 		eds = append(eds, k)
+		c.insightProcessor.Send(v)
 	}
 	stats := model.NewAllFlagStates(success, errorString, eds)
 	return stats
