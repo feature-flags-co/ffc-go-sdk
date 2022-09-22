@@ -100,9 +100,14 @@ func (i *Insight) sendFromQueue() {
 			popData := i.queue.Pop()
 			if popData != nil {
 				event := popData.(data.Event)
-
-				// TODO dispose metric event
-				events = append(events, serializeFlagEvent(event))
+				switch event.(type) {
+				case *data.FlagEvent:
+					events = append(events, serializeFlagEvent(event))
+				case *data.MetricEvent:
+					// TODO dispose metric event
+				default:
+					log.Printf("error event type: %v; returning default value", event)
+				}
 			}
 		}
 
