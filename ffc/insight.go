@@ -6,7 +6,12 @@ import (
 	"github.com/feature-flags-co/ffc-go-sdk/model"
 	"github.com/feature-flags-co/ffc-go-sdk/utils"
 	"log"
+	"time"
 )
+
+func init() {
+
+}
 
 const (
 	FLAGS = iota
@@ -45,11 +50,17 @@ type Insight struct {
 
 func NewInsight(config InsightConfig) Insight {
 
-	return Insight{
+	queue := utils.NewQueue()
+	insight := Insight{
 		InsightConfig: config,
-		queue:         utils.NewQueue(),
+		queue:         queue,
 	}
+
+	go insight.sendFromQueue()
+	return insight
+
 }
+
 func (i *Insight) Send(event data.Event) {
 
 	switch event.(type) {
@@ -70,21 +81,41 @@ func (i *Insight) Flush() {
 }
 
 func (i *Insight) putEventAsync(insightType uint, event data.Event) {
-
 	if event.IsSendEvent() {
 		i.queue.Push(event)
-
-		// TODO  add a go routine to send data to ffc server
-		events := make([]map[string]interface{}, 0)
-		events = append(events, serializeFlagEvent(event))
-		jsonData, err := json.Marshal(events)
-		if err != nil {
-			log.Printf("envet marshal error, error: %v", err)
-		} else {
-			i.InsightConfig.sender.SendEvent(i.InsightConfig.EventUrl, string(jsonData))
-		}
 	}
+}
 
+func (i *Insight) sendFromQueue() {
+
+	var maxCount int = 100
+	for {
+
+		if i.queue.Len() <= 0 {
+			continue
+		}
+
+		events := make([]map[string]interface{}, 0)
+		for a := 0; a < maxCount; a++ {
+			popData := i.queue.Pop()
+			if popData != nil {
+				event := popData.(data.Event)
+
+				// TODO dispose metric event
+				events = append(events, serializeFlagEvent(event))
+			}
+		}
+
+		if len(events) > 0 {
+			jsonData, err := json.Marshal(events)
+			if err != nil {
+				log.Printf("envet marshal error, error: %v", err)
+			} else {
+				i.InsightConfig.sender.SendEvent(i.InsightConfig.EventUrl, string(jsonData))
+			}
+		}
+		time.Sleep(time.Duration(time.Millisecond * 100))
+	}
 }
 
 func serializeFlagEvent(event data.Event) map[string]interface{} {
