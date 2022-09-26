@@ -60,6 +60,7 @@ func httpServer() {
 	http.HandleFunc("/health", health)
 
 	http.HandleFunc("/index", index)
+	http.HandleFunc("/metric", TestTrackMetricWithValue)
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -75,6 +76,23 @@ func index(w http.ResponseWriter, request *http.Request) {
 		Custom("key", "value").Build()
 	client.GetAllLatestFlagsVariations(ffcUser)
 	//client.IntVariation("featureD", user, 0)
+}
+
+func TestTrackMetricWithValue(w http.ResponseWriter, request *http.Request) {
+
+	ffcUser := model.NewFFUserBuilder().
+		UserName("zttt").
+		Key("zttt").
+		Country("country").
+		Email("email").
+		Custom("key", "value").Build()
+
+	var eventName string
+	var eventValue string
+	values := request.URL.Query()
+	eventName = values.Get("ename")
+	eventValue = values.Get("evalue")
+	client.TrackMetricWithValue(ffcUser, eventName, utils.GetFloat64(eventValue))
 }
 
 func health(w http.ResponseWriter, request *http.Request) {
