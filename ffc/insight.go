@@ -105,7 +105,7 @@ func (i *Insight) sendFromQueue() {
 				case *data.FlagEvent:
 					events = append(events, serializeFlagEvent(event))
 				case *data.MetricEvent:
-					// TODO dispose metric event
+					events = append(events, serializeMetricEvent(event))
 				default:
 					log.Printf("error event type: %v; returning default value", event)
 				}
@@ -176,7 +176,7 @@ func serializeUser(user model.FFCUser) map[string]interface{} {
 	return retMap
 }
 
-func serializeMetric(event data.Event) map[string]interface{} {
+func serializeMetricEvent(event data.Event) map[string]interface{} {
 
 	metricEvent := event.(*data.MetricEvent)
 	user := metricEvent.User
