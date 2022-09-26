@@ -29,25 +29,25 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 var client ffc.Client
 
 func websocket() {
-	//envSecret := "ZDMzLTY3NDEtNCUyMDIxMTAxNzIxNTYyNV9fMzZfXzQ2X185OF9fZGVmYXVsdF80ODEwNA=="
 	envSecret := "NWM4LTAzODgtNCUyMDIyMDcwNzE0MzUzN19fMTc3X18yMDZfXzQxNl9fZGVmYXVsdF8zNDY2Yw=="
 	//streamingBuilder := ffc.NewStreamingBuilder().NewStreamingURI("wss://api-dev.featureflag.co")
+	//
+	//insightBuilder := ffc.NewInsightBuilder().SetEventUri("https://api-dev.featureflag.co")
 
 	config := ffc.NewConfigBuilder().
 		SetOffline(false).
 		//SetUpdateProcessorFactory(streamingBuilder).
+		//SetInsightProcessorFactory(insightBuilder).
 		Build()
 	client = ffc.NewClient(envSecret, config)
 	fmt.Println(client)
 
-	//ffcUser := model.NewFFUserBuilder().
-	//	UserName("userName").
+	//ffcUser = model.NewFFUserBuilder().
+	//	UserName("zttt").
+	//	Key("zttt").
 	//	Country("country").
 	//	Email("email").
 	//	Custom("key", "value").Build()
-	//
-	//flagtStatue := client.VariationDetail("featureFlagKey", ffcUser, "defaultValue")
-	//userTags := client.GetAllLatestFlagsVariations(ffcUser)
 }
 func main() {
 	websocket()
@@ -67,10 +67,14 @@ func httpServer() {
 }
 
 func index(w http.ResponseWriter, request *http.Request) {
-	user := model.FFCUser{
-		UserName: "test",
-	}
-	client.IntVariation("featureD", user, 0)
+	ffcUser := model.NewFFUserBuilder().
+		UserName("zttt").
+		Key("zttt").
+		Country("country").
+		Email("email").
+		Custom("key", "value").Build()
+	client.GetAllLatestFlagsVariations(ffcUser)
+	//client.IntVariation("featureD", user, 0)
 }
 
 func health(w http.ResponseWriter, request *http.Request) {

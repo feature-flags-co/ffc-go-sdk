@@ -92,6 +92,7 @@ func (i *Insight) sendFromQueue() {
 	for {
 
 		if i.queue.Len() <= 0 {
+			time.Sleep(time.Duration(time.Millisecond * 100))
 			continue
 		}
 
@@ -117,7 +118,7 @@ func (i *Insight) sendFromQueue() {
 				log.Printf("envet marshal error, error: %v", err)
 			} else {
 				i.InsightConfig.sender.SendEvent(i.InsightConfig.EventUrl, string(jsonData))
-				log.Printf("send envet to ffc server, size: %v", len(events))
+				log.Printf("send event to ffc server, size: %v", len(events))
 			}
 		}
 		time.Sleep(time.Duration(time.Millisecond * 100))

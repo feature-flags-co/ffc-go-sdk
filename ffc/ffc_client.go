@@ -296,6 +296,13 @@ func (c *Client) Flush() {
 // @Param user  the user that performed the event
 // @Param eventName the name of the event
 func (c *Client) TrackMetric(user model.FFCUser, eventName string) {
+	if len(user.UserName) == 0 || len(eventName) == 0 {
+		return
+	}
+	metricEvent := data.NewMetricEvent(user)
+	metric := data.NewMetric(eventName, 1.0)
+	metricEvent.Add(metric)
+	c.insightProcessor.Send(&metricEvent)
 }
 
 // TrackMetricWithValue tracks that a user performed an event and provides a default numeric value for custom metrics
@@ -303,18 +310,49 @@ func (c *Client) TrackMetric(user model.FFCUser, eventName string) {
 // @Param eventName the name of the event
 // @Param metricValue a numeric value used by the experimentation feature in numeric custom metrics.
 func (c *Client) TrackMetricWithValue(user model.FFCUser, eventName string, metricValue float64) {
+
+	if len(user.UserName) == 0 || len(eventName) == 0 || metricValue <= 0 {
+		return
+	}
+	metricEvent := data.NewMetricEvent(user)
+	metric := data.NewMetric(eventName, metricValue)
+	metricEvent.Add(metric)
+	c.insightProcessor.Send(&metricEvent)
 }
 
 // TrackMetrics tracks that a user performed an event and provides a default numeric value for custom metrics
 // @Param user  the user that performed the event
 // @Param eventName the name of the events
-func (c *Client) TrackMetrics(user model.FFCUser, eventName ...string) {
+func (c *Client) TrackMetrics(user model.FFCUser, eventNames ...string) {
+
+	if len(user.UserName) == 0 || len(eventNames) == 0 {
+		return
+	}
+	metricEvent := data.NewMetricEvent(user)
+
+	for _, v := range eventNames {
+		metric := data.NewMetric(v, 1.0)
+		metricEvent.Add(metric)
+	}
+	c.insightProcessor.Send(&metricEvent)
 }
 
 // TrackMetricSeries tracks that a user performed an event and provides a default numeric value for custom metrics
 // @Param user  the user that performed the event
 // @Param metrics event name and numeric value in K/V
 func (c *Client) TrackMetricSeries(user model.FFCUser, metrics map[string]float64) {
+
+	if len(user.UserName) == 0 || len(metrics) == 0 {
+		return
+	}
+	metricEvent := data.NewMetricEvent(user)
+
+	for k, v := range metrics {
+		metric := data.NewMetric(k, v)
+		metricEvent.Add(metric)
+	}
+	c.insightProcessor.Send(&metricEvent)
+
 }
 
 func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, defaultValue interface{},
@@ -365,8 +403,6 @@ func (c *Client) evaluateInternal(featureFlagKey string, user model.FFCUser, def
 			evaResult.KeyName,
 			evaResult.Name)
 	}
-
-	// TODO test insight process
 	c.insightProcessor.Send(&event)
 
 	er := data.EvalResult{
