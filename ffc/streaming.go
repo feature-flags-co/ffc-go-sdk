@@ -31,7 +31,7 @@ func NewStreaming(config Context, streamingURI string) *Streaming {
 }
 
 // PingOrDataSync websocket ping
-func PingOrDataSync(stime *time.Time, msgType string) {
+func (s *Streaming) PingOrDataSync(stime *time.Time, msgType string) {
 
 	var timestamp int64
 	if stime == nil {
@@ -46,6 +46,9 @@ func PingOrDataSync(stime *time.Time, msgType string) {
 		err := socketConn.WriteMessage(websocket.TextMessage, msg)
 		if err != nil {
 			log.Println("Ping write error :", err)
+
+			// ping error, reconnect websocket
+			s.connect()
 			return
 		}
 	}
@@ -64,35 +67,25 @@ func (s *Streaming) Connect() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	// get env secret from basic config
-	envSecret := s.BasicConfig.EnvSecret
-	token := utils.BuildToken(envSecret)
-
-	// build wss request url
-	path := fmt.Sprintf(s.StreamingURL+model.AuthParams, token)
-	log.Printf("connecting: %s", path)
-
-	// build request headers
-	headers := utils.HeaderBuilderFor(s.HttpConfig.Headers)
-
-	// setup web socket connection
-	c, rsp, err := websocket.DefaultDialer.Dial(path, headers)
-	socketConn = c
+	con := s.connect()
+	socketConn = con
 
 	// send data sync message
-	PingOrDataSync(nil, model.MsgTypeDataSync)
+	s.PingOrDataSync(nil, model.MsgTypeDataSync)
 
-	if err != nil {
-		log.Fatal("dial error=", err, " rsp=", rsp)
-	}
-	log.Printf("connected: %s,%v", path, rsp)
-	defer c.Close()
+	defer func(socketConn *websocket.Conn) {
+		err := socketConn.Close()
+		if err != nil {
+
+		}
+	}(socketConn)
+
 	done := make(chan struct{})
 
 	go func() {
 		defer close(done)
 		for {
-			_, message, err := c.ReadMessage()
+			_, message, err := socketConn.ReadMessage()
 			if err != nil {
 				log.Println("read:", err)
 				return
@@ -113,14 +106,15 @@ func (s *Streaming) Connect() {
 
 			// send ping message to websocket server
 			log.Printf("send ping msg %v", t)
-			PingOrDataSync(&t, model.MsgTypePing)
-			PingOrDataSync(&t, model.MsgTypeDataSync)
+			s.PingOrDataSync(&t, model.MsgTypePing)
+			s.PingOrDataSync(&t, model.MsgTypeDataSync)
 		case <-interrupt:
 			log.Println("interrupt")
 
 			// Cleanly close the connection by sending a close message and then
 			// waiting (with timeout) for the server to close the connection.
-			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			err := socketConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			socketConn = nil
 			if err != nil {
 				log.Println("write close:", err)
 				return
@@ -133,6 +127,38 @@ func (s *Streaming) Connect() {
 		}
 	}
 
+}
+
+func (s *Streaming) connect() *websocket.Conn {
+
+	if socketConn != nil {
+		err := socketConn.Close()
+		socketConn = nil
+		if err != nil {
+			return nil
+		}
+	}
+	// get env secret from basic config
+	envSecret := s.BasicConfig.EnvSecret
+	token := utils.BuildToken(envSecret)
+
+	// build wss request url
+	path := fmt.Sprintf(s.StreamingURL+model.AuthParams, token)
+	log.Printf("connecting: %s", path)
+
+	// build request headers
+	headers := utils.HeaderBuilderFor(s.HttpConfig.Headers)
+
+	// setup web socket connection
+	con, rsp, err := websocket.DefaultDialer.Dial(path, headers)
+
+	if err != nil {
+		log.Fatal("dial error=", err, " rsp=", rsp)
+	} else {
+		log.Printf("connected: %s,%v", path, rsp)
+	}
+
+	return con
 }
 
 func processDateAsync(all data.All) bool {
